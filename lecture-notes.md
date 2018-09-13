@@ -228,7 +228,6 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
 
      - This kind of triangular matrix is denoted by `K`, upper triangular matrix.
 
-
   Now for the **extrinsic** assumptions. In order to model that we need to add some sort
   of model-view transformation.
 
