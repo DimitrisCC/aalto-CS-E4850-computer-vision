@@ -171,14 +171,7 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
     The reason why we use them is that many calculations become much simpler. We can represent infinity
     by setting the last element to 0, since converting back to cartesian would be a divison by zero.
 
-
-    Basic geometry:
-     - Line Equation: ${ax + by + c = 0}$ - just scale the vector representing the line and you don't actually change the line. Eg, you don't have to change all the co-efficients to change its length.
-     - If you want to work out a line between two points: $line_ij = p_i \times p_j$
-     - Intersection of two lines is the cross product of the two lines: $q_ij = line_i \times line_j$
-     - Don't need special cases to represent infinity - just specify for instance $(1, 1, 0)$
-
-    Projection Matrix:
+### Projection Matrix:
      - A four-vector matrix
      - x = $K[R t]X$
 
