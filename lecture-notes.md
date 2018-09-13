@@ -163,7 +163,10 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
 
     $k(x, y, w)$ = $(kx, ky, kz)$ => (${kx \over kw}$, ${ky \over kw}$) = (${x \over w}$, ${y \over w}$)
 
-    Scaling the homogenous co-ordinates by a non-zero scalar does not change the point you represent.
+    Scaling:
+     - *Points*: Scaling the homogenous co-ordinates by a non-zero scalar does not change the point you represent.
+     - *Lines*: No need to scale the coefficients, just scale the last component.
+     - *Infinity*: To represent infinity, you can use `0` as the last component.
 
     The reason why we use them is that many calculations become much simpler. We can represent infinity
     by setting the last element to 0, since converting back to cartesian would be a divison by zero.
