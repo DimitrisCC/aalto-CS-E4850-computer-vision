@@ -109,6 +109,52 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
      - But on a digital camera we can't use analogue measurements - we only have pixels.
      - Homogenous co-ordinates are pretty good at that.
 
+### Contra-varaint and Co-variant Components of a Vector
+Covariance and contravariance are properties of an operation.
+
+If a value is changing *covariantly* with a second value, then it
+means that as the second value increases, the value also increases
+and vice versa.
+
+If a value is changing *contravariantly* with a second value, then
+it means that as the second value increases, the first value
+decreases and vice versa.
+
+Vectors can be described in two ways - through their contravariant
+and covaraint components.
+
+The default notation is the "contravaraint" notation.
+The reason for this is because we describe a vector in terms
+of the number times you would have to repeat each basis vector in order
+to reach that point in space.
+ - For instance, if we use the standard basis vectors $i = (1, 0, 0)^T$,
+   $j = (0, 1, 0)^T$ and $k = (0, 0, 1)^T$ then describe a vector
+   $v = (3, 2, 4)^T$ with it, we would say that it is $3i + 2j + 4k$.
+ - However, if our basis vectors change to $i' = (2, 0, 0)^T$,
+   $j' = (0, 2, 0)^T$ and $k' = (0, 0, 2)^T$ then we can describe
+   the same point in space using the vector $1.5i + j + 2k$, eg
+   the coefficients on $i$, $j$ and $k$ have halved.
+
+Another way to describe a vector is taking its dot product
+with each of the basis vectors such that the dot products form
+the components. This is known as the contravariant notation.
+ - In the case of scaling standard basis vectors, the values for
+   the contravariant notation will necessarily be the same,
+   because of the fact that we only add each individual component
+   and the other components are set to 0.
+ - However, consider nonstandard basis vectors $s = (1, 1, 0)^T$,
+   $t = (0, 1, 1)$ and $p = (0, 0, 1)$. All three are linearly
+   independent. We can describe the vector $v = (3, 2, 4)$ as
+   $3s - t + 5p$ using the basis vectors. As the basis vectors
+   shrink, the coefficients must increase, as above.
+ - We can also describe the vect in terms of its dot products
+   with each of the basis vectors:
+   $\begin{bmatrix} (3 \times 1 + 2 \times 1 + 4 \times 0) \\ (3 \times 0 + 2 \times 1 + 4 \times 1) \\ (3 \times 0 + 2 \times 0 + 4 \times 1) \end{bmatrix} = \begin{bmatrix} 5 \\ 6 \\ 4 \end{bmatrix}$
+ - As the basis vectors expand, so do the coefficients of the contravariant
+   form. For instance, if our basis vectors were instead:
+   $s = (2, 2, 0)^T$, $t = (0, 2, 2)$ and $p = (0, 0, 2)$ then
+   we would have: $\begin{bmatrix} (3 \times 2 + 2 \times 2 + 4 \times 0) \\ (3 \times 0 + 2 \times 2 + 4 \times 2) \\ (3 \times 0 + 2 \times 0 + 4 \times 2) \end{bmatrix} = \begin{bmatrix} 10 \\ 12 \\ 8 \end{bmatrix}$.
+
 ### Homogenous Co-ordinates:
     Homogenous co-ordinates can be used to represent both
     points and lines within the same co-ordinate system.
