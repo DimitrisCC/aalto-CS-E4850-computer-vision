@@ -335,15 +335,15 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
    - The value of the cross ratio is invariatn under any projective transformation of the line.
 
 
- - Radial Distortion:
+## Radial Distortion:
     - Very common if you have a wide angle lens in your digital camera - think of fisheye lens.
     - Don't fit with the perspective projection model.
     - We can compensate for this by modelling the lens distortion and compensating for the nonlinear part.
 
-Photometric image formation:
+## Photometric image formation:
     - See lecture slides
 
-Digital Cameras:
+## Digital Cameras:
 
 # Image Processing (3)
 # Feature Detection & Matching (4)
