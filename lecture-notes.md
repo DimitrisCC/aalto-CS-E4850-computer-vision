@@ -274,8 +274,66 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
     z_21 z_22 z_24
     z_31 z_32 z_34
 
- - Transformations:
-    See slide 44 for affine transformations and degrees of freedom.
+### Common Transformation Sets
+#### Translation
+
+  $\begin{bmatrix} 1 && 0 && t_u \\ 0 && 1 && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+
+  Two degrees of freedom in $xz$ and $yz$. Translation is applied to homogenous point vectors at scale of $z$ co-ordinate.
+
+  Concurrency, colinearity, order of contact, intersection,
+  tangency, inflections invariants. are preserved.
+
+#### Euclidean
+
+  $\begin{bmatrix} r_{11} && r_{12} && t_u \\ r_{21} && r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+
+  Three degrees of freedom. Only three as opposed to six because
+  we can only change the rotation angle.
+
+  Length and area are preserved.
+
+#### Similarity
+
+  $\begin{bmatrix} \alpha r_{11} && \alpha r_{12} && t_u \\ \alpha  r_{21} && \alpha r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+
+  Four degrees of freedom. We can change the rotation angle
+  and a single scale factor, $\alpha$.
+
+  The *ratio* of lengths and angle between points are preserved.
+
+#### Affine
+
+  $\begin{bmatrix} a r_{11} && b r_{12} && t_u \\ c r_{21} && d r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+
+  Six degrees of freedom. We can skew on any axis, change
+  scale factors on any axis and translate.
+
+  Parallelism is preserved, as is the ratio of areas and
+  ratio of lengths on parallel lines (since all areas
+  are scaled by the determinant).
+
+#### Projective
+
+  $\begin{bmatrix} h_{11} && h_{12} && h_{13} \\ h_{21} && h_{22} && h_{23} \\ h_{31} && h_{32} && 1 \end{bmatrix}$
+
+  Eight degrees of freedom. Only eight because in order for
+  homogenous co-ordinates to work, they must be scale invariant
+  and thus we can't independently change $h_{33}$.
+
+  Concurrency, colinearity, order of contact, intersection,
+  tangency and inflections are preserved.
+
+  The key invariant in projective transforms is the *cross-ratio*
+  invariant:
+   - The value of the cross ratio is not depent on a particular
+     homogenous representative of point $p$ since the scale cancels out the difference between the numerator and the denominator.
+   - If each point $p$ is a fininte point and its homogenous
+     representative is chosen such that $p_2 = 1$ then
+     $|x_i x_j|$ represents the signed distance from $x_i$ to $x_j$.
+   - Definition of the cross ratio is also valid if one of the points is an ideal point.
+   - The value of the cross ratio is invariatn under any projective transformation of the line.
+
 
  - Radial Distortion:
     - Very common if you have a wide angle lens in your digital camera - think of fisheye lens.
