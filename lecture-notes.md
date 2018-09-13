@@ -41,9 +41,8 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
  - Pinhole camera model and projection matrix: $x = K[R t]X$
  - Homogenous co-ordinates
 
-Geometric Transformation:
- - Perspective Camera: 3D to 2D projection
-
+## Geometric Transformation:
+### Perspective Camera: 3D to 2D projection
    Digital cameras use a perspective projection principle. If you put a piece of film in front of an object, do you get a reasonable image? Not really, since the light from the object would cover the entire film surface and everything.
 
    Main idea: use a barrier to block some of the rays and "focus" light through one point. This is called
@@ -87,7 +86,8 @@ Geometric Transformation:
           - Things that are closer to the camera can appear larger than things which are further away.
           - Angles are not preserved. Parallelism is not preserved either - everything intersects
             at the vanishing point.
-   - Vanishing points:
+
+### Vanishing points:
      - Lines that are parallel in the real world may intersect in the image - if a human observes sees
        two parallel lines that are going away in the Z direction, they appear to intersect.
      - We can construct the vanishing point. Place the image plane in front of the camera, so we
@@ -109,10 +109,54 @@ Geometric Transformation:
      - But on a digital camera we can't use analogue measurements - we only have pixels.
      - Homogenous co-ordinates are pretty good at that.
 
- - Homogenous Co-ordinates:
-    To homogenous co-ordinates:
+### Homogenous Co-ordinates:
+    Homogenous co-ordinates can be used to represent both
+    points and lines within the same co-ordinate system.
+    Operations between vectors that are points and
+    vectors that are lines are well-defined.
+
+    Converting points to homogenous co-ordinates:
     - $(x, y) => (x, y, 1)$
     - $(x, y, z) => (x, y, z, 1)$
+
+    Converting lines to homogenous co-ordinates:
+    - $ax + by + c = 0 -> (a, b, c)$
+    - $ax + by + cz + d = 0 -> (a, b, c, d)$
+
+    Some common operations with homogenous co-ordinates:
+     - Computing the *perpendicular distance* between a line and a point: $l \cdot p$.
+     - Normalization of homogenous co-ordinates:
+       - *Points*: $(x, y, z) -> (\frac{x}{z}, \frac{y}{z}, 1)$
+       - *Lines*: $(a, b, c) -> (\frac{a}{\sqrt{a^2 + b^2}}, \frac{b}{\sqrt{a^2 + b^2}}, \frac{c}{\sqrt{a^2 + b^2}})$
+     - Intersection between two lines $l_1 \times l_2$
+       - The reason for this comes from the *perpendicular distance* formula above.
+         Essentially, if a point is co-linear with a line, its
+         perpendicular distance will be zero, so what
+         we want is some point $p$ that is co-linear with
+         both lines, eg both the following equations are satisfied:
+         - $a_1p + b_1p + c_1 = 0$
+         - $a_2p + b_2p + c_2p = 0$
+
+         The easiest way to ensure this is with by equating both
+         as though there was some point $p$ and then solving for
+         $p$. Because the cross-product of a vector with itself
+         is zero, we can just take the cross product and end up
+         with $p$ as follows:
+         - $l_1 \cdot p = l_2 \cdot p = 0$
+         - $l_1 \times l_2 \cdot p = 0$
+       - Example: Intersection of the lines $x = 1$ and $y = 1$.
+         - $x = 1$ is equavilent to $1 - x = 0$ and has a homogenous
+           representation $(-1, 0, 1)^T$.
+         - $y = 1$ is equavilent to $1 - y = 0$ and has a homogenous
+           representation $(0, -1, 1)^T$.
+         - To take the intersection consider the cross product, which is
+           $(1, 1, 1)$ in homogenous co-ordinates.
+     - Line through two points: $p \times q$.
+       - The reason for this result comes from the perpendicular distance
+         fact above. The cross product finds a vector perpendicular to both
+         points, such a vector is a line that joins both of them.
+
+    A point $x = (x, y)^T$ lies on the line $l = (a, b, c)^T$ iff $ax + by + c = 0$. You can write this as a linear product: $(x, y, 1) \times \begin{bmatrix}a \\ b \\ c \end{bmatrix} = 0$
 
     All homogenous co-ordinates can be scaled by some scalar since they are invariant to scaling.
     Converting back to cartesian co-ords just involves scaling by `w`.
