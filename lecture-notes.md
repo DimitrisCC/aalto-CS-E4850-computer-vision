@@ -307,6 +307,12 @@ And in shorthand form:
 
 $x = KR[I | -\bar C]\bold x$
 
+Usually we would represent the world-to-image transformation using a
+translation offset as opposed to making the center of the pinhole
+explicit, so in this case the camera matrix would be:
+
+$P = K[R | \bold t]$
+
 #### Parameterization and Degrees of Freedom
 As explained above, there are in general nine degrees
 of freedom for the pinhole camera model.
