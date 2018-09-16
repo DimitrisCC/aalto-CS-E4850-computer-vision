@@ -324,6 +324,183 @@ The elements of $R$ and $\bar C$ which relate to camera orientation
 and position to a world co-ordinate system are called the *external camera
 parameters* or *external orientation*.
 
+Thus, there are *9* degrees of freedom.
+
+### CCD Cameras
+The pinhole camera model assumes that the image co-ordinates are
+euclidean having equal scales in both directions. It is entirely
+possible that pixels could be non-square, which introduces an extra
+scale factor in each direction.
+
+Thus, CCD cameras have a *camera calibration matrix* of the form:
+
+$K = \begin{pmatrix} \alpha_x && && p_x && 0 \\ && \alpha_y && p_y && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
+
+Where $(\alpha_x, \alpha_y) \in R^2$ are the scale factors in each
+direction on the image plane.
+
+This can again be represented in shorthand as:
+
+$P = K[R | \bold t]$
+
+Noting that $K$ has two extra degrees of freedom.
+
+CCD camera's have *10* degrees of freedom (we gained on extra scale factor).
+
+### Finite projective camera
+
+In some cases, a camera might skew x-for-y, so we add a skew parameter. Usually
+this is just zero.
+
+$\begin{pmatrix} \alpha_x && s && p_x && 0 \\ && \alpha_y && p_y && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
+
+Shorthand this is:
+
+$P = KR[I | -\bar C]$
+
+A finite projective camera has *11* degrees of freedom.
+
+#### Invertibility of projection matrix, implications for FPC
+
+Note that since the left-hand 3x3 submatrix of $P = KR$ is non-singular,
+any 3x4 matrix P for which the left hand submatrix is non-singular is
+the camera matrix of some finite projective camera.
+
+If we were to say that $M$ was the 3x3 upper left hand corner of
+$P$ then one can decompose $M$ as $M = KR$, which means that $P$
+canbe written as:
+
+$P = M[I | M^{-1} \bold p_4] = KR[I | -\bar C]$ where $p_4$ is the last
+column of $P$.
+
+Thus, the set of camera matrices of finite projectve cameras is
+identical with the set of homogenous 3x4 matrices for which the left hand
+3x3 submtraix is non-singular.
+
+### General projective cameras
+Now we can remove the non-singularity restriction, so a
+*general projective camera* is one represented by an arbitrary
+homogeneous 3x4 matrix of rank 3. It *must* be rank 3 since
+otherwise the matrix mpping will be a line or a point and not
+the whole plane (not a 2D image).
+
+### Anatomy of the general projective camera
+
+#### Camera centre
+$P$ has a 1-dimensional right null space. We can generate this null-space
+with the expression $P \bold C = \bold 0$.
+
+Consider a line from $\bold C$ to $\bold A$. You can represent this
+line using a linear interpolation:
+
+$X(\lambda) = \lambda \bold A + (1 - \lambda) \bold C$
+
+Now, under a projective mapping $x = P \bold X$, points on the line
+are projected as such:
+
+$x = P \bold A(\lambda) + (1 - \lambda)P \bold C$
+
+Now, since $P\bold C = 0$ as per our definition to solve for the
+null-space above, we can remove the $(1 - \lambda)P \bold C$ and
+are left with $x = \lambda P \bold A : \forall \lambda$.
+
+All points on the line are mapped to the same image point, $P\bold A$,
+meaning that the line must be a ray through the camera center. Thus, we
+have a line that is collapsed into a point under the transformation
+which is the null space.
+
+Because of the fact that $C$ is the null-vector of $P$, any point in
+the camera frame doesn't have a defined location in the world space
+since we cannot divide by zero. Thus, the camera center is the point
+at infinity.
+
+#### Column Vectors of the projective camera
+The columns of the projective camrea are 3-vectors which have
+a geometric meaning as particular image points. The points
+$p_1$, $p_2$ and $p_3$ are the *vanishing points of the world
+co-ordinate X, Y and Z* respectively.
+
+The column $p_4$ is the image of the world origin under
+the transformation.
+
+
+#### Row vectors of the projective camera
+The row vectors are 4-vectors which can be seen as particular
+world planes (denoted by $P^1$, $P^2$ and $P^3$).
+
+#### Principal plane ($P^3$)
+The principal plane is the plane facing the camera center
+parallel to the image plane. This is the set of points
+which are imaged on the line at infinity on the plane.
+
+To think about this, imagine that we have some plane facing the
+camera and parallel to the image plane at distance
+infinity away. A point is only *on* that plane, if it is
+also infinity distance away, eg $P^{3T} \bold X = 0$. Note
+that points at the center of the camera are always infinity
+distance away, since $P\bold C = \bold 0$ so $C$ always
+lies on the principal plane.
+
+#### Axis-aligned planes ($P^1$ and $P2$)
+These planes extend parallel to the x and y axis of the
+principal plane and are orthogonal to the principal
+plane itself.
+
+The set satisfies $\bold P^{1T}\bold X = 0$ and
+$\bold P^{2T}\bold X = 0$.
+
+$P^{1T}$ is imaged at $(0, y, w)^T$ and
+$P^{2T}$ is imaged at $(x, 0, w)^T$.
+
+$P^{1T}$ is defined by the line $x = 0$ and the camera
+center. $P^{2T}$ $y = 0$ and the camera center.
+
+$P^{1T}$ and $P^{2T}$ are dependent on the image $x$ and $y$
+axes.
+
+The line of intersection for both planes does not coincide
+with the camera prinicpal axis.
+
+The camera center lies at the intersection of all three planes,
+which makes sense since the condition for the camera to lie
+on all three lanes is $P\bold C = \bold 0$.
+
+#### Principal point
+The principal axis is the line passing through the camera
+centre $\bold C$ with a direction perpendicular to the principal
+plane ($P^3$). Thus, it is the *surface normal* of the principal
+plane. If we recall that the plane equation may be given by
+the parameterization $ax + by + cz + d= 0$, then the normal
+to that plane is the vector $(a, b, c, 0)^T$ lying at infinity
+on the plane. Thus, the normal to the plane is
+$\hat P = (p_{31}, p_{32}, p_{33}, 0)^T$.
+
+Projecting that point gives $P \hat P$, which is the
+*principal point*.
+
+#### Principal axis vector
+In theory, any point $X$ not on the principal plane may be mapped
+to an image point $\bold x = P\bold X$, but in reality, only points
+in front of the camera frame are actually visible.
+
+The vector $m_3$ (from the 3x3 portion $M$ of $P$) points in the
+direction of the principal axis, but we don't know whether it
+points towards the front of the camera, since $P$ is not defined
+up to the sign.
+
+Therefore, we need to consider co-ordinates with respect to the
+camera co-ordinate frame.
+
+Now, remember that the projection of a 3D point to a point in
+the image is given by
+$\bold x = P_{cam}\bold X_{cam} = K[I | \bold 0]X_{cam}$ where
+$X_{cam}$ is the 3D point expressed in camera co-ordinates.
+
+Now, if we take $\bold v = \det M \bold m^3$ then that vector
+will always be pointing towrads the camera. The reason why is that
+$\det R$ can never be negative.
+
+
 ### Vanishing points:
 - Lines that are parallel in the real world may intersect in the image - if a human observes sees
   two parallel lines that are going away in the Z direction, they appear to intersect.
