@@ -607,7 +607,7 @@ the other rows by the angles to rotate around each axis.
 
   Looking at the vanishing point:
 
-`- $p = K[R t] (x, y, z, 0)$
+- $p = K[R t] (x, y, z, 0)$
 - (translation doesn't matter as it corresponds to zero)
 - $p = KR(x, y, z)$
 - $p - K(x_R, y_R, z_R)$
