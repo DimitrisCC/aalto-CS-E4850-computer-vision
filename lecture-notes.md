@@ -54,11 +54,12 @@ Main idea: use a barrier to block some of the rays and "focus" light through one
 a "pinhole camera". Only light rays having a particular direction reach a particular point
 in the surface. (Note that the image will be y-inveted).
 
+Parameters:
   - Apeture
-  - Centre of Projection
+  - **Centre of Projection** also known as the **Camera Center**
+  - **Principal Axis**: Line frm the camera center perpendicular to the image plane
   - Optical Center
   - Focus Point
-  - Camera Center
 
 One of the most important features is that it forms a projection, eg a reduciton of dimensionality.
 
