@@ -625,6 +625,69 @@ If we have a 2D plane in the scene and we want to know the points on that plane 
   z_21 z_22 z_24
   z_31 z_32 z_34
 
+## Action of a projective camera on points
+### Forward Projection
+A general projective camera maps a point in space $x$
+to an image point $\bold X = Px$. Points
+$D = (\bold d, 0)^T$ lie on the plane at infinity and
+are thus vanishing points, affected only by the first
+3x3 submatrix of $P$ as the fourth component is 0.
+
+### Back-projection of points to rays
+Given some point $x$ in an image, can we compute the set
+of points which map to that point? We can, if we cast a
+ray in space passing through the camera centre.
+
+The two points in question are $C$ and $P^{+} \bar x$ where
+$P^{+}$ is the pseudo-inverse of $P$ ($P^{+} = P^T(PP^T)^{-1})$)
+and $\bar x$ is a point on the camera frame.
+
+The point $P^{+}x$ lies on the ray as it projects to
+$x$ because $P(P^{+}x) = x$. So, we can specify
+the ray as:
+
+$\bold X(\lambda) = P^{+}\bold x + \lambda C$
+
+Where $\lambda$ is a parameter defining the input space
+to our line, which is the output space. All points on this
+line are projected to $x$, meaning that the object in space
+that the point on the plane refers to is the one
+intersectin the line at the shortest distance.
+
+#### Alternative form for finite cameras
+If the camera is only *finite* we can use an alternative
+expression as the camera centre is given by $\bar C = -M^{-1}\bar p_4$.
+If we back-project the ray to intersect the plane at infinity
+at point $D = ((M^{-1}x)^, 0)^T$, which is the second point
+on the ray. So we can write this as a parameterized expression:
+
+$X(\lambda) = \lambda \begin{pmatrix} M^{-1}x \\ 0\end{pmatrix} + \begin{pmatrix} -M^{-1}p_4 \\ 1 \end{pmatrix}$
+
+As above, all points on the line parameterized by $\lambda$ project
+to $x$ on the image plane, so we can use the same algorithm
+to find the first intersecting object.
+
+### Determining the depth of a point
+Can we work out how far away a point is from the camera?
+
+If we have a camera matrix $P = [M | p_4]$ projecting
+some point $\bold X = (x, y, z, 1)^T$ to
+$P\bold X = \bold x = w(x, y, 1)^T$ then we can work out $w$.
+
+Let $\bold C$ be the camera centre. Now,
+$P^{3T}(\bold X - \bold C) = m^{3T}(\bar \bold X - \bar \bold C)$,
+which is the dot product of the ray from the camera centre to the
+point $X$ with the same direction as the principal ray.
+
+If we normalize the camera matrix such that $\det M > 0$ and $\bold m^3 = 1$
+then $m^3$ is a unit vector pointing in the positive axis direction,
+so we can interpret $w$ as the depth of the point $X$ from
+the camera centre $C$.
+
+Of course, instead of normalizing, we can just divide the result
+by the magnitude of $\bold m^3$:
+
+$depth(X; P) = \frac{sign(\det M)w}{T||\bold m^3||}$
 
 ## Radial Distortion:
 - Very common if you have a wide angle lens in your digital camera - think of fisheye lens.
