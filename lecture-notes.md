@@ -43,71 +43,71 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
 
 ## Geometric Transformation:
 ### Perspective Camera: 3D to 2D projection
-   Digital cameras use a perspective projection principle. If you put a piece of film in front of an object, do you get a reasonable image? Not really, since the light from the object would cover the entire film surface and everything.
+Digital cameras use a perspective projection principle. If you put a piece of film in front of an object, do you get a reasonable image? Not really, since the light from the object would cover the entire film surface and everything.
 
-   Main idea: use a barrier to block some of the rays and "focus" light through one point. This is called
-   a "pinhole camera". Only light rays having a particular direction reach a particular point
-   in the surface. (Note that the image will be y-inveted).
+Main idea: use a barrier to block some of the rays and "focus" light through one point. This is called
+a "pinhole camera". Only light rays having a particular direction reach a particular point
+in the surface. (Note that the image will be y-inveted).
 
-      - Apeture
-      - Centre of Projection
-      - Optical Center
-      - Focus Point
-      - Camera Center
+  - Apeture
+  - Centre of Projection
+  - Optical Center
+  - Focus Point
+  - Camera Center
 
-   One of the most important features is that it forms a projection, eg a reduciton of dimensionality.
+One of the most important features is that it forms a projection, eg a reduciton of dimensionality.
 
-   What properites are preserved in this process?
-    - Straightness of lines. If there are two lines that intersect, the intersection is preserved. Eg,
-      we preserve linearities.
-    - However, angles and lengths are not preserved. When the Z-dimension is flattened we need to distort
-    - on the X and Y axis by some frustum in order give the illusion of depth.
+What properites are preserved in this process?
+- Straightness of lines. If there are two lines that intersect, the intersection is preserved. Eg,
+  we preserve linearities.
+- However, angles and lengths are not preserved. When the Z-dimension is flattened we need to distort
+- on the X and Y axis by some frustum in order give the illusion of depth.
 
-   A more mathematical approach:
-    - If you want to compute an image point corresponding to a scene point, draw a line from
-      the object to the point on thei mage plane. All scene points that lie on this visual ray
-      have the same projection in the image - you only see the one closest to the camera, unless
-      transparent.
-    - Are there scene points for which the projection is undefined:
-       - Anything on the backside (physically)
-       - Light rays parallel to the image plane - they never intersect so there is no solution.
-    - We define a co-ordinate system for the camera.
-       - Origin is the optical center
-       - Image plane is perpendicular to the Z axis and parallel to XY axis.
-       - Distance between the XY plane to `O` is `f`, the focal length.
-       - Distance between `Py` and `O` is `z`, which is equal to `f`.
-       - We have `P` and `P'`. The angle `Pyz` and `P'fy` is equal, though upside down.
-       - The focal length defines the magnification ratio.
-       - For projections of a pattern on a plane parallel to the image plane: they are at a fixed depth `z`.
-       - Pattern gets scaled by ${f \over z}$ eg $(x, y, z)$ -> ($f {x \over z}$, f ${y \over z}$)
-       - But what happens if the projected object is not parallel to the image plane (non-fronto-parallel planes).
-          - Trickier, depents on your viewpoint.
-          - For anything parallel to the image plane, length is not preserved. We cannot infer actual lengths from observedl lengths - you would have to know the distance from the camera.
-          - Things that are closer to the camera can appear larger than things which are further away.
-          - Angles are not preserved. Parallelism is not preserved either - everything intersects
-            at the vanishing point.
+A more mathematical approach:
+- If you want to compute an image point corresponding to a scene point, draw a line from
+  the object to the point on thei mage plane. All scene points that lie on this visual ray
+  have the same projection in the image - you only see the one closest to the camera, unless
+  transparent.
+- Are there scene points for which the projection is undefined:
+    - Anything on the backside (physically)
+    - Light rays parallel to the image plane - they never intersect so there is no solution.
+- We define a co-ordinate system for the camera.
+    - Origin is the optical center
+    - Image plane is perpendicular to the Z axis and parallel to XY axis.
+    - Distance between the XY plane to `O` is `f`, the focal length.
+    - Distance between `Py` and `O` is `z`, which is equal to `f`.
+    - We have `P` and `P'`. The angle `Pyz` and `P'fy` is equal, though upside down.
+    - The focal length defines the magnification ratio.
+    - For projections of a pattern on a plane parallel to the image plane: they are at a fixed depth `z`.
+    - Pattern gets scaled by ${f \over z}$ eg $(x, y, z)$ -> ($f {x \over z}$, f ${y \over z}$)
+    - But what happens if the projected object is not parallel to the image plane (non-fronto-parallel planes).
+      - Trickier, depents on your viewpoint.
+      - For anything parallel to the image plane, length is not preserved. We cannot infer actual lengths from observedl lengths - you would have to know the distance from the camera.
+      - Things that are closer to the camera can appear larger than things which are further away.
+      - Angles are not preserved. Parallelism is not preserved either - everything intersects
+        at the vanishing point.
 
 ### Vanishing points:
-     - Lines that are parallel in the real world may intersect in the image - if a human observes sees
-       two parallel lines that are going away in the Z direction, they appear to intersect.
-     - We can construct the vanishing point. Place the image plane in front of the camera, so we
-       still get a perspective projection (not upside down). When we move a point along the line further
-       and further away from the camera, it appears to converge on a single point - eg, the *limit* of
-       the projection function is the projection function. Take the projection of the line that has
-       the same direction of the scene line, the vanishing point is the intersection of that line
-       with the plane.
+- Lines that are parallel in the real world may intersect in the image - if a human observes sees
+  two parallel lines that are going away in the Z direction, they appear to intersect.
+- We can construct the vanishing point. Place the image plane in front of the camera, so we
+  still get a perspective projection (not upside down). When we move a point along the line further
+  and further away from the camera, it appears to converge on a single point - eg, the *limit* of
+  the projection function is the projection function. Take the projection of the line that has
+  the same direction of the scene line, the vanishing point is the intersection of that line
+  with the plane.
 
-       All scene lines that have the same direction in a 3D world intersect at a single vashing point.
+  All scene lines that have the same direction in a 3D world intersect at a single vashing point.
 
-       A *vanishing line* is the line in the image where all planes that have the same direction
-       intersect with the same line (eg, all horizontal lines in 3D converge towards a single line
-       in the center of the image). Vertical lines that are parallel generally get a parallel projection
-       so their vanishing line is at infinity.
+  A *vanishing line* is the line in the image where all planes that have the same direction
+  intersect with the same line (eg, all horizontal lines in 3D converge towards a single line
+  in the center of the image). Vertical lines that are parallel generally get a parallel projection
+  so their vanishing line is at infinity.
 
-   - Modelling projection:
-     - Units for image points are in the same metric points.
-     - But on a digital camera we can't use analogue measurements - we only have pixels.
-     - Homogenous co-ordinates are pretty good at that.
+- Modelling projection:
+- Units for image points are in the same metric points.
+- But on a digital camera we can't use analogue measurements - we only have pixels.
+- Homogenous co-ordinates are pretty good at that.
 
 ### Contra-varaint and Co-variant Components of a Vector
 Covariance and contravariance are properties of an operation.
