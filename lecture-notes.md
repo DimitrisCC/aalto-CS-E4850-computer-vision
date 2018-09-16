@@ -93,6 +93,62 @@ A more mathematical approach:
       - Angles are not preserved. Parallelism is not preserved either - everything intersects
         at the vanishing point.
 
+#### Representation using homogeneous co-ordinates
+If the world and image points are represented by homogeneous vectors, then
+the central projection is a linear mapping between their homogeneous
+co-ordinates that can be written in terms of matrix multiplication:
+
+$\begin{pmatrix} f && && && 0 \\ && f && && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
+
+We can introduce the notation $\bold X$ for the world point represented by
+the homogeneous vector $(x, y, z, 1)^T$ and $x$ for the projected point $(x, y, 1)^T$ and $P$ for the 3x4 homogeneous camera projection matrix. Then we have:
+
+$x = P \bold X$
+
+##### Principal point offset:
+The above expression assumed that the origin of co-ordinates was at
+the "principal point", eg, that there was no translation of the pinhole
+itself on the viewing frame. In reality there may be some translation
+in the viewing frame:
+
+$(x, y, z)^T \implies (f\frac{X}{Z} + p_x, f\frac{Y}{Z} + p_y)$
+
+We can represent that using homogenous co-ordinates by adding an x-for-z
+and y-for-z translation in the projection matrix:
+
+$\begin{pmatrix} f && && p_x && 0 \\ && f && p_y && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
+
+##### Camera Calibration Matrix
+The matrix above is called the *camera calibration matrix*.
+We give it the name "calibration" since it is merely
+the configuration of the camera itself and has nothing to do with
+the physical position of the camera in space.
+
+##### Modelview Matrix applied to Camera
+If we want to move the camera around in world space, we can apply a modelview matrix to it.
+
+To compute this modelview matrix, we do so in relation to a point in
+space, $\bar X$ and the location of the camera co-ordinate center, $\bar C$.
+Then, if the rotation of the camera frame is given by $R$, we have
+$X_{cam} = R \cdot (\bar X - \bar C)$, or in matrix form:
+
+$X_{cam} = \begin{pmatrix} R && -R\bar C \\ 0 && 1 \end{pmatrix} \cdot \begin{pmatrix} X \\ Y \\ Z \\ 1) \end{pmatrix}$
+
+And in shorthand form:
+
+$x = KR[I | -\bar C]\bold x$
+
+#### Parameterization and Degrees of Freedom
+As explained above, there are in general nine degrees
+of freedom for the pinhole camera model.
+
+The elements $f$, $p_x$ and $p_y$ are called the *internal camera parameters*
+represented by the *camera calibration matrix*.
+
+The elements of $R$ and $\bar C$ which relate to camera orientation
+and position to a world co-ordinate system are called the *external camera
+parameters* or *external orientation*.
+
 ### Vanishing points:
 - Lines that are parallel in the real world may intersect in the image - if a human observes sees
   two parallel lines that are going away in the Z direction, they appear to intersect.
