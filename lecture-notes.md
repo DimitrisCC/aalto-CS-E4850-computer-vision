@@ -61,7 +61,7 @@ What properites are preserved in this process?
 - Straightness of lines. If there are two lines that intersect, the intersection is preserved. Eg,
   we preserve linearities.
 - However, angles and lengths are not preserved. When the Z-dimension is flattened we need to distort
-- on the X and Y axis by some frustum in order give the illusion of depth.
+  on the X and Y axis by some frustum in order give the illusion of depth.
 
 A more mathematical approach:
 - If you want to compute an image point corresponding to a scene point, draw a line from
