@@ -45,6 +45,11 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
 ### Perspective Camera: 3D to 2D projection
 Digital cameras use a perspective projection principle. If you put a piece of film in front of an object, do you get a reasonable image? Not really, since the light from the object would cover the entire film surface and everything.
 
+All cameras modelling a central projection are specializations
+of the general projective camera. The geometric entities of the
+camera can be computed from its matrix representation.
+
+### Pinhole Camera Model
 Main idea: use a barrier to block some of the rays and "focus" light through one point. This is called
 a "pinhole camera". Only light rays having a particular direction reach a particular point
 in the surface. (Note that the image will be y-inveted).
