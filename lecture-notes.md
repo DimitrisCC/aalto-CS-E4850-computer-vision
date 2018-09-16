@@ -156,237 +156,237 @@ the components. This is known as the contravariant notation.
    we would have: $\begin{bmatrix} (3 \times 2 + 2 \times 2 + 4 \times 0) \\ (3 \times 0 + 2 \times 2 + 4 \times 2) \\ (3 \times 0 + 2 \times 0 + 4 \times 2) \end{bmatrix} = \begin{bmatrix} 10 \\ 12 \\ 8 \end{bmatrix}$.
 
 ### Homogenous Co-ordinates:
-    Homogenous co-ordinates can be used to represent both
-    points and lines within the same co-ordinate system.
-    Operations between vectors that are points and
-    vectors that are lines are well-defined.
+Homogenous co-ordinates can be used to represent both
+points and lines within the same co-ordinate system.
+Operations between vectors that are points and
+vectors that are lines are well-defined.
 
-    Converting points to homogenous co-ordinates:
-    - $(x, y) => (x, y, 1)$
-    - $(x, y, z) => (x, y, z, 1)$
+Converting points to homogenous co-ordinates:
+- $(x, y) => (x, y, 1)$
+- $(x, y, z) => (x, y, z, 1)$
 
-    Converting lines to homogenous co-ordinates:
-    - $ax + by + c = 0 -> (a, b, c)$
-    - $ax + by + cz + d = 0 -> (a, b, c, d)$
+Converting lines to homogenous co-ordinates:
+- $ax + by + c = 0 -> (a, b, c)$
+- $ax + by + cz + d = 0 -> (a, b, c, d)$
 
-    Some common operations with homogenous co-ordinates:
-     - Computing the *perpendicular distance* between a line and a point: $l \cdot p$.
-     - Normalization of homogenous co-ordinates:
-       - *Points*: $(x, y, z) -> (\frac{x}{z}, \frac{y}{z}, 1)$
-       - *Lines*: $(a, b, c) -> (\frac{a}{\sqrt{a^2 + b^2}}, \frac{b}{\sqrt{a^2 + b^2}}, \frac{c}{\sqrt{a^2 + b^2}})$
-     - Intersection between two lines $l_1 \times l_2$
-       - The reason for this comes from the *perpendicular distance* formula above.
-         Essentially, if a point is co-linear with a line, its
-         perpendicular distance will be zero, so what
-         we want is some point $p$ that is co-linear with
-         both lines, eg both the following equations are satisfied:
-         - $a_1p + b_1p + c_1 = 0$
-         - $a_2p + b_2p + c_2p = 0$
+Some common operations with homogenous co-ordinates:
+  - Computing the *perpendicular distance* between a line and a point: $l \cdot p$.
+  - Normalization of homogenous co-ordinates:
+    - *Points*: $(x, y, z) -> (\frac{x}{z}, \frac{y}{z}, 1)$
+    - *Lines*: $(a, b, c) -> (\frac{a}{\sqrt{a^2 + b^2}}, \frac{b}{\sqrt{a^2 + b^2}}, \frac{c}{\sqrt{a^2 + b^2}})$
+  - Intersection between two lines $l_1 \times l_2$
+    - The reason for this comes from the *perpendicular distance* formula above.
+      Essentially, if a point is co-linear with a line, its
+      perpendicular distance will be zero, so what
+      we want is some point $p$ that is co-linear with
+      both lines, eg both the following equations are satisfied:
+      - $a_1p + b_1p + c_1 = 0$
+      - $a_2p + b_2p + c_2p = 0$
 
-         The easiest way to ensure this is with by equating both
-         as though there was some point $p$ and then solving for
-         $p$. Because the cross-product of a vector with itself
-         is zero, we can just take the cross product and end up
-         with $p$ as follows:
-         - $l_1 \cdot p = l_2 \cdot p = 0$
-         - $l_1 \times l_2 \cdot p = 0$
-       - Example: Intersection of the lines $x = 1$ and $y = 1$.
-         - $x = 1$ is equavilent to $1 - x = 0$ and has a homogenous
-           representation $(-1, 0, 1)^T$.
-         - $y = 1$ is equavilent to $1 - y = 0$ and has a homogenous
-           representation $(0, -1, 1)^T$.
-         - To take the intersection consider the cross product, which is
-           $(1, 1, 1)$ in homogenous co-ordinates.
-     - Line through two points: $p \times q$.
-       - The reason for this result comes from the perpendicular distance
-         fact above. The cross product finds a vector perpendicular to both
-         points, such a vector is a line that joins both of them.
+      The easiest way to ensure this is with by equating both
+      as though there was some point $p$ and then solving for
+      $p$. Because the cross-product of a vector with itself
+      is zero, we can just take the cross product and end up
+      with $p$ as follows:
+      - $l_1 \cdot p = l_2 \cdot p = 0$
+      - $l_1 \times l_2 \cdot p = 0$
+    - Example: Intersection of the lines $x = 1$ and $y = 1$.
+      - $x = 1$ is equavilent to $1 - x = 0$ and has a homogenous
+        representation $(-1, 0, 1)^T$.
+      - $y = 1$ is equavilent to $1 - y = 0$ and has a homogenous
+        representation $(0, -1, 1)^T$.
+      - To take the intersection consider the cross product, which is
+        $(1, 1, 1)$ in homogenous co-ordinates.
+  - Line through two points: $p \times q$.
+    - The reason for this result comes from the perpendicular distance
+      fact above. The cross product finds a vector perpendicular to both
+      points, such a vector is a line that joins both of them.
 
-    A point $x = (x, y)^T$ lies on the line $l = (a, b, c)^T$ iff $ax + by + c = 0$. You can write this as a linear product: $(x, y, 1) \times \begin{bmatrix}a \\ b \\ c \end{bmatrix} = 0$
+A point $x = (x, y)^T$ lies on the line $l = (a, b, c)^T$ iff $ax + by + c = 0$. You can write this as a linear product: $(x, y, 1) \times \begin{bmatrix}a \\ b \\ c \end{bmatrix} = 0$
 
-    All homogenous co-ordinates can be scaled by some scalar since they are invariant to scaling.
-    Converting back to cartesian co-ords just involves scaling by `w`.
+All homogenous co-ordinates can be scaled by some scalar since they are invariant to scaling.
+Converting back to cartesian co-ords just involves scaling by `w`.
 
-    $k(x, y, w)$ = $(kx, ky, kz)$ => (${kx \over kw}$, ${ky \over kw}$) = (${x \over w}$, ${y \over w}$)
+$k(x, y, w)$ = $(kx, ky, kz)$ => (${kx \over kw}$, ${ky \over kw}$) = (${x \over w}$, ${y \over w}$)
 
-    Scaling:
-     - *Points*: Scaling the homogenous co-ordinates by a non-zero scalar does not change the point you represent.
-     - *Lines*: No need to scale the coefficients, just scale the last component.
-     - *Infinity*: To represent infinity, you can use `0` as the last component.
+Scaling:
+  - *Points*: Scaling the homogenous co-ordinates by a non-zero scalar does not change the point you represent.
+  - *Lines*: No need to scale the coefficients, just scale the last component.
+  - *Infinity*: To represent infinity, you can use `0` as the last component.
 
-    The reason why we use them is that many calculations become much simpler. We can represent infinity
-    by setting the last element to 0, since converting back to cartesian would be a divison by zero.
+The reason why we use them is that many calculations become much simpler. We can represent infinity
+by setting the last element to 0, since converting back to cartesian would be a divison by zero.
 
 ### Projection Matrix:
-     - A four-vector matrix
-     - x = $K[R t]X$
+- A four-vector matrix
+- x = $K[R t]X$
 
-        - x: Image co-ordinates (u, v, 1)
-        - K: Intrinsic Matrix (3x3): Internal parameters of the camera (focus length, etc)
-        - R: Rotation (3x3): Rotation and translation of camera with respect to world frame.
-        - t: (Translation (3x1)
-        - X: World co-ordinates $(X, Y, Z, 1)$
+  - x: Image co-ordinates (u, v, 1)
+  - K: Intrinsic Matrix (3x3): Internal parameters of the camera (focus length, etc)
+  - R: Rotation (3x3): Rotation and translation of camera with respect to world frame.
+  - t: (Translation (3x1)
+  - X: World co-ordinates $(X, Y, Z, 1)$
 
-      **Deriving this:**
+**Deriving this:**
 
-      - Intrinsic assumptions:
-        - Using the same units on the image plane as the scene co-ordinate frame. Unit length in X and Y dimension is the same (1:1 aspect ratio)
-        - Origin of the image co-ordinate frame is at (0, 0)
-        - No skew (orthogonality)
+- Intrinsic assumptions:
+  - Using the same units on the image plane as the scene co-ordinate frame. Unit length in X and Y dimension is the same (1:1 aspect ratio)
+  - Origin of the image co-ordinate frame is at (0, 0)
+  - No skew (orthogonality)
 
-      - Extensic assumptions:
-        - No rotation
-        - Camera at (0, 0, 0)
+- Extensic assumptions:
+  - No rotation
+  - Camera at (0, 0, 0)
 
-      So in reality: $K[I 0]X$
+So in reality: $K[I 0]X$
 
-      We can convert $(x, y, z)$ -> ($f {x \over z}$, f ${y \over z}$) to homogenous co-ords.
+We can convert $(x, y, z)$ -> ($f {x \over z}$, f ${y \over z}$) to homogenous co-ords.
 
-      $w(u, v, 1)$ yields:
+$w(u, v, 1)$ yields:
 
-            f 0 0 0
-            0 f 0 0  => K
-            0 0 1 0
+      f 0 0 0
+      0 f 0 0  => K
+      0 0 1 0
 
-      Now, lets get rid of one assumption, that the origin of the image co-ordinate frame is at $(0, 0)$
+Now, lets get rid of one assumption, that the origin of the image co-ordinate frame is at $(0, 0)$
 
-      $w(u, v, 1)$ yields:
+$w(u, v, 1)$ yields:
 
-            f 0 u 0
-            0 f v 0  => K
-            0 0 1 0
+      f 0 u 0
+      0 f v 0  => K
+      0 0 1 0
 
-      Now, lets get rid of the 1:1 aspect ratio assumption:
+Now, lets get rid of the 1:1 aspect ratio assumption:
 
-      $w(u, v, 1)$ yields:
+$w(u, v, 1)$ yields:
 
-            a 0 u 0
-            0 b v 0  => K
-            0 0 1 0
+      a 0 u 0
+      0 b v 0  => K
+      0 0 1 0
 
-      Now lets get rid of the no-skew assumption:
+Now lets get rid of the no-skew assumption:
 
-      $w(u, v, 1)$ yields:
+$w(u, v, 1)$ yields:
 
-            a s u 0
-            0 b v 0  => K
-            0 0 1 0
+      a s u 0
+      0 b v 0  => K
+      0 0 1 0
 
-     - This kind of triangular matrix is denoted by `K`, upper triangular matrix.
+- This kind of triangular matrix is denoted by `K`, upper triangular matrix.
 
-  Now for the **extrinsic** assumptions. In order to model that we need to add some sort
-  of model-view transformation.
+Now for the **extrinsic** assumptions. In order to model that we need to add some sort
+of model-view transformation.
 
-  Translation is done by adding a column vector (3x4).
+Translation is done by adding a column vector (3x4).
 
-      1 0 0 t_x
-      0 1 0 t_y
-      0 0 1 t_z
+    1 0 0 t_x
+    0 1 0 t_y
+    0 0 1 t_z
 
-  Vector `t` is from the camera to the point in the world.
+Vector `t` is from the camera to the point in the world.
 
-  Lots of ways to represent 3D rotation by rotating around each of the co-ordinate axes
-  in turn (counter clockwise). Just put a unit vector in each row then use `sin` and `cos` on
-  the other rows by the angles to rotate around each axis.
+Lots of ways to represent 3D rotation by rotating around each of the co-ordinate axes
+in turn (counter clockwise). Just put a unit vector in each row then use `sin` and `cos` on
+the other rows by the angles to rotate around each axis.
 
-   $w(u, v, 1)$ yields:
+  $w(u, v, 1)$ yields:
 
-                 a s u 0    r_11 r_12 r_13 t_x
-    x = K[R t]X  0 b v 0  x r_21 r_22 r_23 t_y
-                 0 0 1 0    r_31 r_32 r_33 t_z
+                a s u 0    r_11 r_12 r_13 t_x
+  x = K[R t]X  0 b v 0  x r_21 r_22 r_23 t_y
+                0 0 1 0    r_31 r_32 r_33 t_z
 
-   In practice we need to recover these parameters from the 2D scene.
+  In practice we need to recover these parameters from the 2D scene.
 
-   11 degrees of freedom. 2 degrees of freedom in the camera position, 9 in the modelview matrix.
+  11 degrees of freedom. 2 degrees of freedom in the camera position, 9 in the modelview matrix.
 
-   Looking at the vanishing point:
+  Looking at the vanishing point:
 
 `- $p = K[R t] (x, y, z, 0)$
-  - (translation doesn't matter as it corresponds to zero)
- - $p = KR(x, y, z)$
- - $p - K(x_R, y_R, z_R)$
+- (translation doesn't matter as it corresponds to zero)
+- $p = KR(x, y, z)$
+- $p - K(x_R, y_R, z_R)$
 
-        f 0 u_0   x_R
-        0 f v_0 x y_R
-        0 0 1     z_R
+      f 0 u_0   x_R
+      0 f v_0 x y_R
+      0 0 1     z_R
 
-  $u = {fx_R \over z_R} + u_0$
-  $v = {fx_R \over z_R} + v_0$
+$u = {fx_R \over z_R} + u_0$
+$v = {fx_R \over z_R} + v_0$
 
-  If we have a 2D plane in the scene and we want to know the points on that plane project, the transformation matrix can be simplified. Just get rid of the `z` column vector.
+If we have a 2D plane in the scene and we want to know the points on that plane project, the transformation matrix can be simplified. Just get rid of the `z` column vector.
 
-    z_11 z_12 z_14
-    z_21 z_22 z_24
-    z_31 z_32 z_34
+  z_11 z_12 z_14
+  z_21 z_22 z_24
+  z_31 z_32 z_34
 
 ### Common Transformation Sets
 #### Translation
 
-  $\begin{bmatrix} 1 && 0 && t_u \\ 0 && 1 && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+$\begin{bmatrix} 1 && 0 && t_u \\ 0 && 1 && t_v \\ 0 && 0 && 1 \end{bmatrix}$
 
-  Two degrees of freedom in $xz$ and $yz$. Translation is applied to homogenous point vectors at scale of $z$ co-ordinate.
+Two degrees of freedom in $xz$ and $yz$. Translation is applied to homogenous point vectors at scale of $z$ co-ordinate.
 
-  Concurrency, colinearity, order of contact, intersection,
-  tangency, inflections invariants. are preserved.
+Concurrency, colinearity, order of contact, intersection,
+tangency, inflections invariants. are preserved.
 
 #### Euclidean
 
-  $\begin{bmatrix} r_{11} && r_{12} && t_u \\ r_{21} && r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+$\begin{bmatrix} r_{11} && r_{12} && t_u \\ r_{21} && r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
 
-  Three degrees of freedom. Only three as opposed to six because
-  we can only change the rotation angle.
+Three degrees of freedom. Only three as opposed to six because
+we can only change the rotation angle.
 
-  Length and area are preserved.
+Length and area are preserved.
 
 #### Similarity
 
-  $\begin{bmatrix} \alpha r_{11} && \alpha r_{12} && t_u \\ \alpha  r_{21} && \alpha r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+$\begin{bmatrix} \alpha r_{11} && \alpha r_{12} && t_u \\ \alpha  r_{21} && \alpha r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
 
-  Four degrees of freedom. We can change the rotation angle
-  and a single scale factor, $\alpha$.
+Four degrees of freedom. We can change the rotation angle
+and a single scale factor, $\alpha$.
 
-  The *ratio* of lengths and angle between points are preserved.
+The *ratio* of lengths and angle between points are preserved.
 
 #### Affine
 
-  $\begin{bmatrix} a r_{11} && b r_{12} && t_u \\ c r_{21} && d r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
+$\begin{bmatrix} a r_{11} && b r_{12} && t_u \\ c r_{21} && d r_{22} && t_v \\ 0 && 0 && 1 \end{bmatrix}$
 
-  Six degrees of freedom. We can skew on any axis, change
-  scale factors on any axis and translate.
+Six degrees of freedom. We can skew on any axis, change
+scale factors on any axis and translate.
 
-  Parallelism is preserved, as is the ratio of areas and
-  ratio of lengths on parallel lines (since all areas
-  are scaled by the determinant).
+Parallelism is preserved, as is the ratio of areas and
+ratio of lengths on parallel lines (since all areas
+are scaled by the determinant).
 
 #### Projective
 
-  $\begin{bmatrix} h_{11} && h_{12} && h_{13} \\ h_{21} && h_{22} && h_{23} \\ h_{31} && h_{32} && 1 \end{bmatrix}$
+$\begin{bmatrix} h_{11} && h_{12} && h_{13} \\ h_{21} && h_{22} && h_{23} \\ h_{31} && h_{32} && 1 \end{bmatrix}$
 
-  Eight degrees of freedom. Only eight because in order for
-  homogenous co-ordinates to work, they must be scale invariant
-  and thus we can't independently change $h_{33}$.
+Eight degrees of freedom. Only eight because in order for
+homogenous co-ordinates to work, they must be scale invariant
+and thus we can't independently change $h_{33}$.
 
-  Concurrency, colinearity, order of contact, intersection,
-  tangency and inflections are preserved.
+Concurrency, colinearity, order of contact, intersection,
+tangency and inflections are preserved.
 
-  The key invariant in projective transforms is the *cross-ratio*
-  invariant:
-   - The value of the cross ratio is not depent on a particular
-     homogenous representative of point $p$ since the scale cancels out the difference between the numerator and the denominator.
-   - If each point $p$ is a fininte point and its homogenous
-     representative is chosen such that $p_2 = 1$ then
-     $|x_i x_j|$ represents the signed distance from $x_i$ to $x_j$.
-   - Definition of the cross ratio is also valid if one of the points is an ideal point.
-   - The value of the cross ratio is invariatn under any projective transformation of the line.
+The key invariant in projective transforms is the *cross-ratio*
+invariant:
+  - The value of the cross ratio is not depent on a particular
+    homogenous representative of point $p$ since the scale cancels out the difference between the numerator and the denominator.
+  - If each point $p$ is a fininte point and its homogenous
+    representative is chosen such that $p_2 = 1$ then
+    $|x_i x_j|$ represents the signed distance from $x_i$ to $x_j$.
+  - Definition of the cross ratio is also valid if one of the points is an ideal point.
+  - The value of the cross ratio is invariant under any projective transformation of the line.
 
 
 ## Radial Distortion:
-    - Very common if you have a wide angle lens in your digital camera - think of fisheye lens.
-    - Don't fit with the perspective projection model.
-    - We can compensate for this by modelling the lens distortion and compensating for the nonlinear part.
+- Very common if you have a wide angle lens in your digital camera - think of fisheye lens.
+- Don't fit with the perspective projection model.
+- We can compensate for this by modelling the lens distortion and compensating for the nonlinear part.
 
 ## Photometric image formation:
-    - See lecture slides
+- See lecture slides
 
 ## Digital Cameras:
 
