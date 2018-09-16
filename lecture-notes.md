@@ -689,6 +689,98 @@ by the magnitude of $\bold m^3$:
 
 $depth(X; P) = \frac{sign(\det M)w}{T||\bold m^3||}$
 
+### Decomposing the camera matrix
+Say we have $P$, a camera matrix representing the general projective
+camera. We know that this is a product: $P = KR[I | -\bar C]$, so
+how can we find the individual components $K$ the internal
+camera configuration, $R$ the camera external position and $C$ the
+centre point of the camera.
+
+We can use a technique called RQ-decomposition. This is the decomposition
+into the product of an upper-triangular and orthogonal matrix. This
+will be explained later.
+
+The skew-factor, $s$, is only nonzero if the $x$ and $y$ axes are
+not perpendicular to each other, for instance if a photograph is
+re-photographed, or where the image plane is not orthogonal to
+the principal ray.
+
+Although a 3x4 matrix can always be decomposed to obtain $R$ and $K$,
+the euclidean interpretations of those parameters are only meaning if
+the image and space co-ordinates are in an appropriate frame, meaning
+that a Euclidean frame is required for both image and 3-space. That said,
+the interpretation of the null-vector of $P$ is always valid even if
+both frames are projective.
+
+## Cameras where the centre lies on the plane at infinity
+The difference between these and finite cameras is that the upper-left
+hand matrix $M$ is singular.
+
+The essential differences between an infinite camera and a finite
+camera are:
+ - The parallel projection matrix $\begin{pmatrix} 1 && 0 && 0 && 0 \\ 0 && 1 && 0 && 0 \\ 0 && 0 && 0 && 1\end{pmatrix}$ (eg, zeroes in the 3rd column) replaces the canonical projection matrix $[I | 0]$ of a finite camera.
+ - The calibration matrix $\begin{pmatrix} K_{2\times2} && \hat \bold 0 \\ \hat \bold 0^T && 1\end{pmatrix}$ replaces $K$ of a finite camera (eg, the only relevant parameters are in the 2x2 upper left hand corner submatrix, there is no parameterization on the third column or row).
+ - The principal point is not defined (as it lies at infinity).
+
+### Affine cameras
+This is a camera matrix $P$ in which the last row is of the form
+$(0, 0, 0, 1)$, because points at infinity are mapped to points
+at infinity.
+
+#### Orthographic projection
+If we project along the z-axis, then there no pinhole projection - every
+point in the camera frame just casts a straight line in the world. The only
+thing that matters is the exterior location of the camera, $R$ and its
+position $t$.
+
+Orthographic cameras have only five degrees of freedom, the three parameters
+ascribing the rotation matrix and two offset parameters.
+
+#### Scaled orthographic projection
+Similar to orthographic projection, but we have an isotropic scale factor
+applied in the $x$ and $y$ output space:
+
+$P = \begin{pmatrix} k && && \\ && k && \\ && && 1 \end{pmatrix} \begin{pmatrix} r^{1}_1, && r^{1}_2 && r^{1}_3 && t_1 \\ r^{2}_1, && r^{2}_2 && r^{2}_3 && t_2 \\ 0 && 0 && 0 && 1 \end{pmatrix}$
+
+There are six degrees of freedom. We gained an extra one, the isotropic
+scale factor.
+
+#### Weak perspective projection
+Similar to orthographic projection but we now have independent sacle factors
+for the $x$ and $y$ axes.
+
+$P = \begin{pmatrix} \alpha_1 && && \\ && \alpha_2 && \\ && && 1 \end{pmatrix} \begin{pmatrix} r^{1}_1, && r^{1}_2 && r^{1}_3 && t_1 \\ r^{2}_1, && r^{2}_2 && r^{2}_3 && t_2 \\ 0 && 0 && 0 && 1 \end{pmatrix}$
+
+There are seven degrees of freedom. We gained an extra one in the form
+of an additional scale factor.
+
+#### Affine camera
+Similar to weak perspective projection, but we have one additional skew
+factor, $s$.
+
+$P = \begin{pmatrix} \alpha_1 && s && \\ && \alpha_2 && \\ && && 1 \end{pmatrix} \begin{pmatrix} r^{1}_1, && r^{1}_2 && r^{1}_3 && t_1 \\ r^{2}_1, && r^{2}_2 && r^{2}_3 && t_2 \\ 0 && 0 && 0 && 1 \end{pmatrix}$
+
+This has eight degrees of freedom, the where $M$ is now the top left
+submatrix $M_{2\times3}$.
+
+Projection under an affine camera is a linear mapping on inhomogeneous
+co-ordinates composed with a translation:
+
+$\begin{pmatrix} x \\ y \end{pmatrix} = \begin{bmatrix} m_{11} && m_{12} && m_{13} \\ m_{21} && m_{22} && m_{23} \end{bmatrix} \bold x + \begin{bmatrix} t_1 \\ t_2 \end{bmatrix}$
+
+The point $(t_1, t_2)^T$ is the image of the world origin.
+
+##### Properties of the affine camera
+
+The plane at infinity in space is mapped to points at infinity in the image, so
+the principal plane of the camera lies at infinity:
+ - Any projective camera matrix for which the principal plane is at infinity is an affine camera matrix
+ - Parallel world line are projected into parallel image lines, since they
+   only intersect in the plane at infinity, hence the image lines are parallel.
+ - The vector $\bold d$ satisfying $M_{2\times3}\bold d$ is the direction
+   of the parallel projection and $(\bold d, 0)^T$ is the camera centre since
+   $P_A\begin{pmatrix} \bold d \\ 0 \end{pmatrix} = \bold 0$.
+
 ## Radial Distortion:
 - Very common if you have a wide angle lens in your digital camera - think of fisheye lens.
 - Don't fit with the perspective projection model.
