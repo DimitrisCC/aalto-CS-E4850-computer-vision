@@ -42,6 +42,114 @@ Required: Non-zero points from at least 8 weekly assignment rounds out of 12.
  - Homogenous co-ordinates
 
 ## Geometric Transformation:
+### Contra-varaint and Co-variant Components of a Vector
+Covariance and contravariance are properties of an operation.
+
+If a value is changing *covariantly* with a second value, then it
+means that as the second value increases, the value also increases
+and vice versa.
+
+If a value is changing *contravariantly* with a second value, then
+it means that as the second value increases, the first value
+decreases and vice versa.
+
+Vectors can be described in two ways - through their contravariant
+and covaraint components.
+
+The default notation is the "contravaraint" notation.
+The reason for this is because we describe a vector in terms
+of the number times you would have to repeat each basis vector in order
+to reach that point in space.
+ - For instance, if we use the standard basis vectors $i = (1, 0, 0)^T$,
+   $j = (0, 1, 0)^T$ and $k = (0, 0, 1)^T$ then describe a vector
+   $v = (3, 2, 4)^T$ with it, we would say that it is $3i + 2j + 4k$.
+ - However, if our basis vectors change to $i' = (2, 0, 0)^T$,
+   $j' = (0, 2, 0)^T$ and $k' = (0, 0, 2)^T$ then we can describe
+   the same point in space using the vector $1.5i + j + 2k$, eg
+   the coefficients on $i$, $j$ and $k$ have halved.
+
+Another way to describe a vector is taking its dot product
+with each of the basis vectors such that the dot products form
+the components. This is known as the contravariant notation.
+ - In the case of scaling standard basis vectors, the values for
+   the contravariant notation will necessarily be the same,
+   because of the fact that we only add each individual component
+   and the other components are set to 0.
+ - However, consider nonstandard basis vectors $s = (1, 1, 0)^T$,
+   $t = (0, 1, 1)$ and $p = (0, 0, 1)$. All three are linearly
+   independent. We can describe the vector $v = (3, 2, 4)$ as
+   $3s - t + 5p$ using the basis vectors. As the basis vectors
+   shrink, the coefficients must increase, as above.
+ - We can also describe the vect in terms of its dot products
+   with each of the basis vectors:
+   $\begin{bmatrix} (3 \times 1 + 2 \times 1 + 4 \times 0) \\ (3 \times 0 + 2 \times 1 + 4 \times 1) \\ (3 \times 0 + 2 \times 0 + 4 \times 1) \end{bmatrix} = \begin{bmatrix} 5 \\ 6 \\ 4 \end{bmatrix}$
+ - As the basis vectors expand, so do the coefficients of the contravariant
+   form. For instance, if our basis vectors were instead:
+   $s = (2, 2, 0)^T$, $t = (0, 2, 2)$ and $p = (0, 0, 2)$ then
+   we would have: $\begin{bmatrix} (3 \times 2 + 2 \times 2 + 4 \times 0) \\ (3 \times 0 + 2 \times 2 + 4 \times 2) \\ (3 \times 0 + 2 \times 0 + 4 \times 2) \end{bmatrix} = \begin{bmatrix} 10 \\ 12 \\ 8 \end{bmatrix}$.
+
+### Homogenous Co-ordinates:
+Homogenous co-ordinates can be used to represent both
+points and lines within the same co-ordinate system.
+Operations between vectors that are points and
+vectors that are lines are well-defined.
+
+Converting points to homogenous co-ordinates:
+- $(x, y) => (x, y, 1)$
+- $(x, y, z) => (x, y, z, 1)$
+
+Converting lines to homogenous co-ordinates:
+- $ax + by + c = 0 -> (a, b, c)$
+- $ax + by + cz + d = 0 -> (a, b, c, d)$
+
+Some common operations with homogenous co-ordinates:
+  - Computing the *perpendicular distance* between a line and a point: $l \cdot p$.
+  - Normalization of homogenous co-ordinates:
+    - *Points*: $(x, y, z) -> (\frac{x}{z}, \frac{y}{z}, 1)$
+    - *Lines*: $(a, b, c) -> (\frac{a}{\sqrt{a^2 + b^2}}, \frac{b}{\sqrt{a^2 + b^2}}, \frac{c}{\sqrt{a^2 + b^2}})$
+  - Intersection between two lines $l_1 \times l_2$
+    - The reason for this comes from the *perpendicular distance* formula above.
+      Essentially, if a point is co-linear with a line, its
+      perpendicular distance will be zero, so what
+      we want is some point $p$ that is co-linear with
+      both lines, eg both the following equations are satisfied:
+      - $a_1p + b_1p + c_1 = 0$
+      - $a_2p + b_2p + c_2p = 0$
+
+      The easiest way to ensure this is with by equating both
+      as though there was some point $p$ and then solving for
+      $p$. Because the cross-product of a vector with itself
+      is zero, we can just take the cross product and end up
+      with $p$ as follows:
+      - $l_1 \cdot p = l_2 \cdot p = 0$
+      - $l_1 \times l_2 \cdot p = 0$
+    - Example: Intersection of the lines $x = 1$ and $y = 1$.
+      - $x = 1$ is equavilent to $1 - x = 0$ and has a homogenous
+        representation $(-1, 0, 1)^T$.
+      - $y = 1$ is equavilent to $1 - y = 0$ and has a homogenous
+        representation $(0, -1, 1)^T$.
+      - To take the intersection consider the cross product, which is
+        $(1, 1, 1)$ in homogenous co-ordinates.
+  - Line through two points: $p \times q$.
+    - The reason for this result comes from the perpendicular distance
+      fact above. The cross product finds a vector perpendicular to both
+      points, such a vector is a line that joins both of them.
+
+A point $x = (x, y)^T$ lies on the line $l = (a, b, c)^T$ iff $ax + by + c = 0$. You can write this as a linear product: $(x, y, 1) \times \begin{bmatrix}a \\ b \\ c \end{bmatrix} = 0$
+
+All homogenous co-ordinates can be scaled by some scalar since they are invariant to scaling.
+Converting back to cartesian co-ords just involves scaling by `w`.
+
+$k(x, y, w)$ = $(kx, ky, kz)$ => (${kx \over kw}$, ${ky \over kw}$) = (${x \over w}$, ${y \over w}$)
+
+Scaling:
+  - *Points*: Scaling the homogenous co-ordinates by a non-zero scalar does not change the point you represent.
+  - *Lines*: No need to scale the coefficients, just scale the last component.
+  - *Infinity*: To represent infinity, you can use `0` as the last component.
+
+The reason why we use them is that many calculations become much simpler. We can represent infinity
+by setting the last element to 0, since converting back to cartesian would be a divison by zero.
+
 ### Perspective Camera: 3D to 2D projection
 Digital cameras use a perspective projection principle. If you put a piece of film in front of an object, do you get a reasonable image? Not really, since the light from the object would cover the entire film surface and everything.
 
@@ -170,114 +278,6 @@ parameters* or *external orientation*.
 - Units for image points are in the same metric points.
 - But on a digital camera we can't use analogue measurements - we only have pixels.
 - Homogenous co-ordinates are pretty good at that.
-
-### Contra-varaint and Co-variant Components of a Vector
-Covariance and contravariance are properties of an operation.
-
-If a value is changing *covariantly* with a second value, then it
-means that as the second value increases, the value also increases
-and vice versa.
-
-If a value is changing *contravariantly* with a second value, then
-it means that as the second value increases, the first value
-decreases and vice versa.
-
-Vectors can be described in two ways - through their contravariant
-and covaraint components.
-
-The default notation is the "contravaraint" notation.
-The reason for this is because we describe a vector in terms
-of the number times you would have to repeat each basis vector in order
-to reach that point in space.
- - For instance, if we use the standard basis vectors $i = (1, 0, 0)^T$,
-   $j = (0, 1, 0)^T$ and $k = (0, 0, 1)^T$ then describe a vector
-   $v = (3, 2, 4)^T$ with it, we would say that it is $3i + 2j + 4k$.
- - However, if our basis vectors change to $i' = (2, 0, 0)^T$,
-   $j' = (0, 2, 0)^T$ and $k' = (0, 0, 2)^T$ then we can describe
-   the same point in space using the vector $1.5i + j + 2k$, eg
-   the coefficients on $i$, $j$ and $k$ have halved.
-
-Another way to describe a vector is taking its dot product
-with each of the basis vectors such that the dot products form
-the components. This is known as the contravariant notation.
- - In the case of scaling standard basis vectors, the values for
-   the contravariant notation will necessarily be the same,
-   because of the fact that we only add each individual component
-   and the other components are set to 0.
- - However, consider nonstandard basis vectors $s = (1, 1, 0)^T$,
-   $t = (0, 1, 1)$ and $p = (0, 0, 1)$. All three are linearly
-   independent. We can describe the vector $v = (3, 2, 4)$ as
-   $3s - t + 5p$ using the basis vectors. As the basis vectors
-   shrink, the coefficients must increase, as above.
- - We can also describe the vect in terms of its dot products
-   with each of the basis vectors:
-   $\begin{bmatrix} (3 \times 1 + 2 \times 1 + 4 \times 0) \\ (3 \times 0 + 2 \times 1 + 4 \times 1) \\ (3 \times 0 + 2 \times 0 + 4 \times 1) \end{bmatrix} = \begin{bmatrix} 5 \\ 6 \\ 4 \end{bmatrix}$
- - As the basis vectors expand, so do the coefficients of the contravariant
-   form. For instance, if our basis vectors were instead:
-   $s = (2, 2, 0)^T$, $t = (0, 2, 2)$ and $p = (0, 0, 2)$ then
-   we would have: $\begin{bmatrix} (3 \times 2 + 2 \times 2 + 4 \times 0) \\ (3 \times 0 + 2 \times 2 + 4 \times 2) \\ (3 \times 0 + 2 \times 0 + 4 \times 2) \end{bmatrix} = \begin{bmatrix} 10 \\ 12 \\ 8 \end{bmatrix}$.
-
-### Homogenous Co-ordinates:
-Homogenous co-ordinates can be used to represent both
-points and lines within the same co-ordinate system.
-Operations between vectors that are points and
-vectors that are lines are well-defined.
-
-Converting points to homogenous co-ordinates:
-- $(x, y) => (x, y, 1)$
-- $(x, y, z) => (x, y, z, 1)$
-
-Converting lines to homogenous co-ordinates:
-- $ax + by + c = 0 -> (a, b, c)$
-- $ax + by + cz + d = 0 -> (a, b, c, d)$
-
-Some common operations with homogenous co-ordinates:
-  - Computing the *perpendicular distance* between a line and a point: $l \cdot p$.
-  - Normalization of homogenous co-ordinates:
-    - *Points*: $(x, y, z) -> (\frac{x}{z}, \frac{y}{z}, 1)$
-    - *Lines*: $(a, b, c) -> (\frac{a}{\sqrt{a^2 + b^2}}, \frac{b}{\sqrt{a^2 + b^2}}, \frac{c}{\sqrt{a^2 + b^2}})$
-  - Intersection between two lines $l_1 \times l_2$
-    - The reason for this comes from the *perpendicular distance* formula above.
-      Essentially, if a point is co-linear with a line, its
-      perpendicular distance will be zero, so what
-      we want is some point $p$ that is co-linear with
-      both lines, eg both the following equations are satisfied:
-      - $a_1p + b_1p + c_1 = 0$
-      - $a_2p + b_2p + c_2p = 0$
-
-      The easiest way to ensure this is with by equating both
-      as though there was some point $p$ and then solving for
-      $p$. Because the cross-product of a vector with itself
-      is zero, we can just take the cross product and end up
-      with $p$ as follows:
-      - $l_1 \cdot p = l_2 \cdot p = 0$
-      - $l_1 \times l_2 \cdot p = 0$
-    - Example: Intersection of the lines $x = 1$ and $y = 1$.
-      - $x = 1$ is equavilent to $1 - x = 0$ and has a homogenous
-        representation $(-1, 0, 1)^T$.
-      - $y = 1$ is equavilent to $1 - y = 0$ and has a homogenous
-        representation $(0, -1, 1)^T$.
-      - To take the intersection consider the cross product, which is
-        $(1, 1, 1)$ in homogenous co-ordinates.
-  - Line through two points: $p \times q$.
-    - The reason for this result comes from the perpendicular distance
-      fact above. The cross product finds a vector perpendicular to both
-      points, such a vector is a line that joins both of them.
-
-A point $x = (x, y)^T$ lies on the line $l = (a, b, c)^T$ iff $ax + by + c = 0$. You can write this as a linear product: $(x, y, 1) \times \begin{bmatrix}a \\ b \\ c \end{bmatrix} = 0$
-
-All homogenous co-ordinates can be scaled by some scalar since they are invariant to scaling.
-Converting back to cartesian co-ords just involves scaling by `w`.
-
-$k(x, y, w)$ = $(kx, ky, kz)$ => (${kx \over kw}$, ${ky \over kw}$) = (${x \over w}$, ${y \over w}$)
-
-Scaling:
-  - *Points*: Scaling the homogenous co-ordinates by a non-zero scalar does not change the point you represent.
-  - *Lines*: No need to scale the coefficients, just scale the last component.
-  - *Infinity*: To represent infinity, you can use `0` as the last component.
-
-The reason why we use them is that many calculations become much simpler. We can represent infinity
-by setting the last element to 0, since converting back to cartesian would be a divison by zero.
 
 ### Projection Matrix:
 - A four-vector matrix
