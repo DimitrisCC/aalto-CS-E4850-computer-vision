@@ -239,7 +239,7 @@ What properites are preserved in this process?
 
 A more mathematical approach:
 - If you want to compute an image point corresponding to a scene point, draw a line from
-  the object to the point on thei mage plane. All scene points that lie on this visual ray
+  the object to the point on the image plane. All scene points that lie on this visual ray
   have the same projection in the image - you only see the one closest to the camera, unless
   transparent.
 - Are there scene points for which the projection is undefined:
