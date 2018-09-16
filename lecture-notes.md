@@ -266,7 +266,7 @@ If the world and image points are represented by homogeneous vectors, then
 the central projection is a linear mapping between their homogeneous
 co-ordinates that can be written in terms of matrix multiplication:
 
-$\begin{pmatrix} f && && && 0 \\ && f && && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
+$K = \begin{pmatrix} f && && && 0 \\ && f && && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
 
 We can introduce the notation $\bold X$ for the world point represented by
 the homogeneous vector $(x, y, z, 1)^T$ and $x$ for the projected point $(x, y, 1)^T$ and $P$ for the 3x4 homogeneous camera projection matrix. Then we have:
@@ -284,13 +284,14 @@ $(x, y, z)^T \implies (f\frac{X}{Z} + p_x, f\frac{Y}{Z} + p_y)$
 We can represent that using homogenous co-ordinates by adding an x-for-z
 and y-for-z translation in the projection matrix:
 
-$\begin{pmatrix} f && && p_x && 0 \\ && f && p_y && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
+$K = \begin{pmatrix} f && && p_x && 0 \\ && f && p_y && 0 \\ && && 1 && 0\end{pmatrix} \cdot \begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}$
 
 ##### Camera Calibration Matrix
 The matrix above is called the *camera calibration matrix*.
 We give it the name "calibration" since it is merely
 the configuration of the camera itself and has nothing to do with
-the physical position of the camera in space.
+the physical position of the camera in space. The *camera calibration matrix*
+is denoted by $K$
 
 ##### Modelview Matrix applied to Camera
 If we want to move the camera around in world space, we can apply a modelview matrix to it.
