@@ -792,6 +792,391 @@ the principal plane of the camera lies at infinity:
 ## Digital Cameras:
 
 # Image Processing (3)
+**tl;dr**:
+ - Sometimes it makes sense to think of images and filtering in the frequency domain
+ - Can be faster to filter using FFT for large images ($N \log N$ vs $N^2$)
+ - Images are mostly smooth which is why compression works, not much high
+   frequency content.
+ - Remember to perform a low-pass before subsampling.
+
+Three views of image filtering:
+ - Spacial domain (mathematic operation on a grid of numbers): smoothing,
+   sharpening, edge detection
+ - Image filters in the frequency domain (modify the frequencies of images):
+   hybrid images, sampling, resizing
+ - Templates and image pyramids (applications of filtering):
+   template matching, finding certain structures from images
+
+## Image Filtering in the spacial domain
+Compute some function $f$ of local neighbourhood at each position. A convolution
+generally.
+
+This is the basic building block in many more complicated systems, we do
+some low-level image processing based on these operations, or extract
+information from the images (edges, distinctive points, discontinuities
+etc).
+
+We can then feed this either to a template matcher or to a CNN.
+
+Note that when the filter is placed on the boundary, the pixels outside
+the boundary get some pre-defined value like 0.
+
+### Denoising
+How can we reduce noise in a photograph?
+
+ - Solution 1: Moving average where the weights are lower for
+               surrounding pixels. The weights are called
+               a *filter kernel*. Note that the weights
+               must sum to 1 as we are doing a sum. Pixels
+               with high values that are outliers are smoothed
+               into much lower values, but at the cost of blurring
+               everything else in the image.
+  $h[m, n] = \sum_{k, l} g[k, l] f[m + k, n + l]$
+   - Lots of different weight configurations:
+     - *box filter*: Constant weights regardless of whether
+                     the weights are in the kernel. Really
+                     blurs the image. The larger the kernel
+                     dimensions, the blurrier the image.
+     - *gaussian filter*: Weights distributed by gaussian distribution
+
+### Example convolutional filters
+What about the following filters:
+
+    0 0 0
+    0 1 0 -> Identity mapping, nothing changes since only
+    0 0 0    center pixel has non-zero value
+
+    0 0 0
+    0 0 1 -> Shifts everything left by 1 pixel
+    0 0 0
+
+    1 0 -1
+    2 0 -2 -> Detects right vertical edges. If there is 
+    1 0 -1    a large difference between a pixel and its
+              right neighbour, this difference is highlighted
+
+    1  2  1
+    0  0  0  -> Detects horizontal edges by the same principle
+    -1 -2 -1
+
+### Properties of filter kernels
+Linearity: $g(f_1) + g(f_2) = g(f_1 + f_2)$
+
+Shift Invariant: $g(s(f)) = s(g(f))$ where $s$ is a shift function
+ - Note that any linear shift-invariant operator can be
+   represented as a convolution.
+
+Commutative
+
+Associative
+
+Distributive over Addition
+
+Scalar factors out
+
+Identity: unit impulse
+
+
+### Definition of Convolution
+$(f * g)[m, n] = \sum f[m - k, n - l] g[k, l]$
+
+In a convolution the kernel is "flipped" by convention.
+
+### Filtering vs Convolution
+In a filter you have you have a +, in convolution you have a -. Note
+that in a filter you don't have flipping, in a convolution you do
+have flipping.
+
+This is good to remember since there are two functions in a lot
+of image processing libraries `conv2` and `filter2`, the outputs
+will differ because the former flips and the latter does not.
+
+### Gaussian filters
+
+$G_{\sigma} = \frac{1}{2\pi\sigma^2}e^{-\frac(x^2 + y^2)}{2\sigma^2}}$
+
+The weights decay exponentially but they alwasy stay positive.
+The larger $\sigma$ is, the larger the kernel is, eg the larger
+the area where the kernel has a positive and nonzero value.
+
+Compared to the box filter, the box filter has artifacts like
+a grid-effect.
+
+#### Properties
+Removes the "high frequency" components from the image (low-pass)
+ - Makes the images more smooth
+
+Convolution with itself is another Gaussian but with a standard deviation. So
+we can smooth with a small-width kernel, repeat and get the same result as
+a larger width kernel.
+
+Convolving twice with a Gaussian kernel of width $\sigma$ is
+the same as doing $\sigma \sqrt 2$
+
+Gaussian kernels are also *separable*, you can factor it
+into products of two 1D Gaussians (horizontal and vertical passes).
+
+#### Separability of a Guassian filter
+
+G_{\sigma}(x, y) = (\frac{1}{\root {2 \pi} \sigma} e^{-\frac{x^2}/2\sigma^2}} + (\frac{1}{\root {2 \pi} \sigma} e^{-\frac{y^2}/2\sigma^2}}
+
+This is useful in practice because $k * k$ requires $k^2$ operations per
+pixel, but if we do it separately it only requires $2k$ operations for
+separable kernels.
+
+However, it creates a data depencny between the horizontally
+and vertically blurred images, eg the horizontal filtering must
+be complete before the vertical filtering can continue
+(or vice versa).
+
+$K = vh^T$ If you think of it as a column vector
+and a row vector you can do the matrix multiplication
+between the column and the row and recover the same
+convolution matrix.
+
+$\begin{pmatrix} a \\ b \\ c\end{pmatrix} \begin{pmatrix} x && y && z\end{pmatrix} = K$
+
+#### Practical matters
+What happens when you get to the edge? You need to extrapolate, some
+methods are:
+ - Treat every pixel outside the image as black (creates a border)
+ - Wrap around (good for patterns)
+ - Copy the edge value (good for images, but highlights
+   bright areas around the edge of the image)
+ - Reflect across the edge (good for images, but technically
+                            inaccurate).
+ - Overkill: Use a generative network to generate pixels
+             on the edges then blur them.
+
+What is the size of the output?
+ - In some cases you just truncate the edges of the image where
+   the filter would have to go outside the boundary.
+ - In MATLAB you have `filter2(g, f, shape)`, where `shape` is:
+   - `'full'`: sum of sizes and `f` and `g`.
+   - `'same'`: output size is `f`.
+   - `'valid'`: difference between `f` and `g`.
+
+
+## Image filtering in the frequency domain
+### Fourier Transform
+Any univariate function can be rewritten as a sum
+of sine and cosines of different frequencies (with
+the restriction that the fourier series is not the
+function at the bounardies of where the series
+repeats).
+
+The basic building block is:
+
+$A\sin(\wx + \phi)$
+
+Add enough of them and you get any signal that you want.
+
+Generally speaking we do this for audio processing, but
+we can think of other signals in the same way.
+
+We can decompose a signal into all the frequencies
+that make it up and then plot the amplitude of each
+individual frequency term. Eg:
+
+$g(t) = \sin(2\pif t) + \frac{1}{3}\sin(2\pi(3f) \t)$
+
+We have:
+ - $1f$
+ - $\frac{1/3}3f$
+
+Every bar in the histogram corresponds to a particular
+sinusoid function which is composed with all the other
+sinusoids to make up the signal.
+
+If we eventually start adding sine and cosine terms
+and take the limit, we have something like:
+
+$\lim{k \to \infty} A\sum_{k = 1}^{\infty} \frac{1}{k} \sin (2\pikt)$
+
+The highest frequency that you can measure in a signal
+depends on the *sampling resolution*. Higher sampling
+resolution allows us to measure higher frequencies but
+takes longer.
+
+#### 2D Fourier transform
+In this case, we have the Fourier transform in the 2D case.
+
+Imagine that we have a sine wave going from white to black
+in a 2D image where each pixel is defined by
+some function $f(x, y)$ where $f(x, y)$ is a sum of
+weighted sines and cosines.
+
+2D signals can be composed by adding together their
+generated result over some domain.
+
+A fourier base teases away fast and slow cahnges in
+the image. High frequencies represent very fast
+changes, whereas low frequencies represent a gradual
+change.
+
+The fourier *image* is like a 2D histogram. It captures
+both the orientation and intensity of the wave
+(usually this is represented with a different color,
+or with depth).
+
+Its worth noting that fourier transforms always
+add an extra dimension, eg, a 1D signal gets
+represented as 2D histogram, a 2D signal gets
+represented as a 3D histogram.
+
+The high frequencies are dispersed around the
+edges of the fourier basis image and the
+low frequencies congregate around the centre. Colour
+measures amplitude.
+
+#### Mathematical definition
+
+The fourier transform $\bar F$ takes some
+function and returns another function in terms of
+frequency.
+
+$\bar F(f(x)) = F(\phi)$
+
+For every $\phi$ from 0 to infinty, $F(\phi)$ holds
+both the amplitude and phase of the coresponding
+sine:
+
+$Asin(\phi x + \ro)$
+
+This is through a complex number trick:
+
+$F(\phi) = R(\phi) + iI(\phi)$
+
+Thus, $A = += \sqrt(R(\phi)^2 + I(\phi)^}$ and $\ro = \tan^{-1} \frac{I(\phi)}{R(\phi)}$
+
+It stores the magnittude and phase at each frequency.
+
+The magnitude encodes how much signal there is at a particular
+frequency and the phase encodes the spacial information
+indirectly.
+
+If we want to compute the fourier transform, take the
+integral of $h(x)e^{j\phix} dx$. Of course, we only
+take this to a certain extent $N$ since we can't integrate
+continuously. Use a Riemann sum:
+
+$H(k) = \frac{1}{N} \sum_{x = 0}^{N - 1} h(x)e^{-j \frac{2\pikx}{N}}$
+
+In the 2D space it extends fairly easily, we just have two
+sums:
+
+$y(u, v) = \frac{1}{MN} \sum_{m = 0}^{M - 1}\sum_{n = 0}{N - 1} x(m, n) e^{-j \frac{2\pium}{M} e^{-j \frac{2\pivn}{N}}$
+
+#### Convolution theorem
+
+The fourier transform of the convolution of two
+functions is the product of their Foruier transforms:
+
+$F[g * h] = F[g]F[h]$
+
+The inverse Fourier transform of the product of two
+fourier transforms is the convolution of the two
+inverser Fouier transforms:
+
+$F^{-1}[gh] = F^{-1}[g] * F^{-1}[h]$
+
+Thus, a *convolution* in the spacial domain is
+equivalent to *multiplication* in the frequency domain.
+
+Depending on which domain we are in, we can use either
+convolution or take a the fourier transform and multiply
+which might be simpler.
+
+#### Properties of Fourier Transforms
+Linear: $\bar F[ax(t) + by(t)] = a\bar F[x(t)] + b \bar F[y(t)]$
+
+Fourier transform of a real signal is symmetric about the origin
+
+The energy of the signal is the same as the energy of its
+Fourier transform.
+
+### Finding equivalent filters in both the spacial and frequency domain
+#### Why is it that some filters produce artifacts and not others ?
+Eg: consider the following convolution:
+
+    1 0 -1
+    2 0 -2
+    1 0 -1
+
+We can take the fourier transform, taking as many frequencies
+as we have pixels.
+
+Then we multiply the frequencies by the fourier transform of the convolution,
+then take the inverse fourier transform. For instance, a Gaussian kernel, like:
+
+    a a a
+    a c a
+    a a a
+
+Then we take the 2D fourier transform and we notice that there is a low
+frequency of high amplitude in the center, so multiplying that through
+the frequency domain removes all the high frequency components
+of the image, so when takeing the inverse FFT we get a blurred image.
+
+Consider the box filter:
+
+    1 1 1
+    1 1 1
+    1 1 1
+
+When we take the fourier transform of this convolution, we
+still have a lot of high frequency components. So multiplying
+preserves those high frequencies, causing the artifacts
+to remain.
+
+#### To what extent will information be preserved in an image when we resize it?
+For instance, if we subsample by throwing away every other row and column, we
+get *aliasing* because the sampling density limits the space of frequencies
+that we can represent.
+
+If we have higher frequencies in the original signal you start to see
+artifacts due to information loss. Examples:
+ - Temporal aliasing: If the video frame rate is not fast enough you cannot
+                      capture high frequency motion, which makes wheels
+                      appear to spin the wrong way or stay constant
+ - Disintegration of checkerboards: This is a high-frequency texture
+                                    that we cannot represent.
+
+##### Nyquist-Shannon Sampling Theorem
+When sampling a signal at discrete intervals, the sampling frequency
+must be $\ge 2 \times f_{max}$ where $f_{max}$ is the max frequency
+of the input signal. So in order to perfectly reconstruct the image
+without information loss, then you need to measure the highest frequency
+in the image and sample at least two times that frequency.
+
+##### Anti-aliasing
+What if we don't want the sampling frequency to be that high?
+
+We can get rid of all the frequencies that are greater than
+half of the new sampling frequency.
+
+Start with the image, apply a low-pass filter, eg, by blurring
+it: `imfilter(image, fspecial('gaussian', 7, 1)))`.
+
+*Then*, sample every other pixel.
+
+### Hybrid images
+If we have two input images and we take the low frequencies from
+one image and high frequencies from the other we see this kind of
+mixed image. If you look at it from a close distance you see
+the high-frequency content, but if you look at it from a far
+distance you see the low frequency image.
+
+Why is it that the image you see depends on the viewing distance?
+
+It seems that perceptual cues in the mid-high frequencies dominate
+perception. When we see an image from far away we are effectively
+subsampling it.
+
+## Template matching
+
+## Image pyramids
+
 # Feature Detection & Matching (4)
 # Feature Based Alignment & Image Stitching (6, 9)
 # Dense Motion Estimation (8)
