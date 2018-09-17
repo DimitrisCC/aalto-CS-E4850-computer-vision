@@ -991,12 +991,15 @@ sinusoids to make up the signal.
 If we eventually start adding sine and cosine terms
 and take the limit, we have something like:
 
-$\lim{k \to \infty} A\sum_{k = 1}^{\infty} \frac{1}{k} \sin (2\pikt)$
+$\lim{k \to \infty} A\sum_{k = 1}^{\infty} \frac{1}{k} \sin (2\pi kt)$
 
 The highest frequency that you can measure in a signal
 depends on the *sampling resolution*. Higher sampling
 resolution allows us to measure higher frequencies but
 takes longer.
+
+Note the dimensions of the fourier transform histogram. It is
+the `number_of_frequencies x max_signal_amplitude`.
 
 #### 2D Fourier transform
 In this case, we have the Fourier transform in the 2D case.
@@ -1028,6 +1031,9 @@ The high frequencies are dispersed around the
 edges of the fourier basis image and the
 low frequencies congregate around the centre. Colour
 measures amplitude.
+
+Note the dimensions of the 2D fourier transform histogram. It is
+the `number_of_frequencies x number_of_frequencies x max_signal_amplitude`.
 
 #### Mathematical definition
 
@@ -1128,6 +1134,13 @@ When we take the fourier transform of this convolution, we
 still have a lot of high frequency components. So multiplying
 preserves those high frequencies, causing the artifacts
 to remain.
+
+**Subsampling resolution for FT**: What subsampling should we use
+for the fourier transform when converting both the filter and the
+image to the frequency domain? For the image the frequency must at
+least be the number of pixels in the image. In order
+for the multiplication of the two domains to be defined, we must also
+sample the same number of frequencies in the filter.
 
 #### To what extent will information be preserved in an image when we resize it?
 For instance, if we subsample by throwing away every other row and column, we
