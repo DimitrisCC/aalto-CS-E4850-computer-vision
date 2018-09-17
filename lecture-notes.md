@@ -893,7 +893,7 @@ will differ because the former flips and the latter does not.
 
 ### Gaussian filters
 
-$G_{\sigma} = \frac{1}{2\pi\sigma^2}e^{-\frac(x^2 + y^2)}{2\sigma^2}}$
+$G_{\sigma} = \frac{1}{2\pi\sigma^2}e^{-\frac(x^2 + y^2)}{2\sigma^2}$
 
 The weights decay exponentially but they alwasy stay positive.
 The larger $\sigma$ is, the larger the kernel is, eg the larger
@@ -918,7 +918,7 @@ into products of two 1D Gaussians (horizontal and vertical passes).
 
 #### Separability of a Guassian filter
 
-G_{\sigma}(x, y) = (\frac{1}{\root {2 \pi} \sigma} e^{-\frac{x^2}/2\sigma^2}} + (\frac{1}{\root {2 \pi} \sigma} e^{-\frac{y^2}/2\sigma^2}}
+$G_{\sigma}(x, y) = (\frac{1}{\sqrt {2 \pi} \sigma} e^{-\frac{x^2}/2\sigma^2} + (\frac{1}{\sqrt {2 \pi} \sigma} e^{-\frac{y^2}/2\sigma^2}$
 
 This is useful in practice because $k * k$ requires $k^2$ operations per
 pixel, but if we do it separately it only requires $2k$ operations for
@@ -967,7 +967,7 @@ repeats).
 
 The basic building block is:
 
-$A\sin(\wx + \phi)$
+$A\sin(\sigma x + \phi)$
 
 Add enough of them and you get any signal that you want.
 
@@ -978,7 +978,7 @@ We can decompose a signal into all the frequencies
 that make it up and then plot the amplitude of each
 individual frequency term. Eg:
 
-$g(t) = \sin(2\pif t) + \frac{1}{3}\sin(2\pi(3f) \t)$
+$g(t) = \sin(2\pi f t) + \frac{1}{3}\sin(2\pi (3f) t)$
 
 We have:
  - $1f$
@@ -1041,13 +1041,13 @@ For every $\phi$ from 0 to infinty, $F(\phi)$ holds
 both the amplitude and phase of the coresponding
 sine:
 
-$Asin(\phi x + \ro)$
+$Asin(\phi x + \mu)$
 
 This is through a complex number trick:
 
 $F(\phi) = R(\phi) + iI(\phi)$
 
-Thus, $A = += \sqrt(R(\phi)^2 + I(\phi)^}$ and $\ro = \tan^{-1} \frac{I(\phi)}{R(\phi)}$
+Thus, $A = +- \sqrt{R(\phi)^2 + I(\phi)^2}$ and $\mu = \tan^{-1} \frac{I(\phi)}{R(\phi)}$
 
 It stores the magnittude and phase at each frequency.
 
@@ -1056,16 +1056,16 @@ frequency and the phase encodes the spacial information
 indirectly.
 
 If we want to compute the fourier transform, take the
-integral of $h(x)e^{j\phix} dx$. Of course, we only
+integral of $h(x)e^{j\phi x} dx$. Of course, we only
 take this to a certain extent $N$ since we can't integrate
 continuously. Use a Riemann sum:
 
-$H(k) = \frac{1}{N} \sum_{x = 0}^{N - 1} h(x)e^{-j \frac{2\pikx}{N}}$
+$H(k) = \frac{1}{N} \sum_{x = 0}^{N - 1} h(x)e^{-j \frac{2\pi kx}{N}}$
 
 In the 2D space it extends fairly easily, we just have two
 sums:
 
-$y(u, v) = \frac{1}{MN} \sum_{m = 0}^{M - 1}\sum_{n = 0}{N - 1} x(m, n) e^{-j \frac{2\pium}{M} e^{-j \frac{2\pivn}{N}}$
+$y(u, v) = \frac{1}{MN} \sum_{m = 0}^{M - 1}\sum_{n = 0}{N - 1} x(m, n) e^{-j \frac{2\pi um}{M}} e^{-j \frac{2\pi vn}{N}}$
 
 #### Convolution theorem
 
