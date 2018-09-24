@@ -1191,6 +1191,385 @@ subsampling it.
 ## Image pyramids
 
 # Feature Detection & Matching (4)
+See the following [paper](https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf) by David Lowe.
+
+## Scale-Invariant Feature Transforms
+The general gist of detecting such
+image features is to:
+ - **Scale-space extrema detection**: Search over all the scales and image locations, using a difference-of-Gaussian function to identify potential interest points that are invariant to scale and orientation.
+ - **Keypoint localization**: Determine location and scale of keypoint.
+ - **Orientation assignment**: One or more orientations are assigned to each ekypoint location based on local image gradient directions.
+ - **Keypoint descriptor**: Local image gradients are measured at the selected scale in the region around each keypoint.
+
+This approach generates large numbers of features
+that densely cover the image over the full range of
+scales and locations. For instance a 500x500 image
+will give rise to about 2000 stable features.
+
+### History of approaches
+Moravec (1981) - stereo matching using a corner detctor, useful for
+any image that has large gradients at a predetermined scale.
+
+Schmid and Mohr (1997) - invariant local feature matching could
+be extended to general image recognition problems
+in which a feature was matched against a large database of images.
+
+The Harris corner detector is very sensitive to changes
+in image scale and do doesn't provide a good basis
+for matching images of different sizes.
+
+The main problem is finding representations that
+are stable under scale change or better yet, are affine
+invariant.
+
+Carneir and Jepson (2002) describe phase-based local
+features that represent the phase rather than the
+magnitude of local spacial frequences, providing
+invariance to illumination.
+
+Schiele and Crowley (200) proposed the use of multidimensional
+histograms summarizing the distribution of measurements
+within image regions.
+
+### Scale-space extrema detection
+
+The only possible scale-space kernel is the Gaussian
+function. The scale space of an image is defined as
+a funtion $L(x, y, \sigma)$ that is produced from
+the convolution of a variable-scale Gaussian with
+an input image:
+
+$L(x, y, \sigma) = G(x, y, \sigma) * I(x, y)$,
+
+where $G(x, y, \sigma) = \frac{1}{2\pi\sigma^2}\exp (\frac{-(x^2 + y^2)}{2\sigma^2})$.
+
+So to effieciently detect stable keypoint locations in
+scale-space, Lowe proposes using scale-space extreme
+in the difference-of-Gaussian functions convolved
+with the image:
+
+$D(x, y, \sigma) = (G(x, y, k\sigma) - G(x, y, \sigma)) * I(x, y)$, i.e
+
+$D(x, y, \sigma) = L(x, y, \sigma) - L(x, y, k\sigma)$.
+
+We choose this function because it is efficeint to compute
+since we need to compute $L$ anwyay for scale space
+feature description, so in the overall algorithm
+it is just a matter of subtracting the two images.
+
+In addition, the difference-of-Gaussians is a
+pretty good approximator for the scale-normalized Laplacian
+of Gaussian ($\sigma^2 \triangledown G$).
+
+#### Detecting local extrema
+In order to detect the local maxima and minima of $D(x, y, \sigma)$,
+each sample point is compared with its eight neighbours in the
+current image and nine neighbours in the scale above
+and below.
+
+The sample point is only selected if it is larger than
+all of those neighbours or smaller than all of them.
+
+Since extrema can arbitrarily close together there
+is no minimum spacing of samples that will detect all
+extrema. So we must settle for a solution that trades
+efficiency for completenes.
+
+#### Frequency of sampling in the spacial domain
+If we pre-smooth the image before extrema detection
+then we are effectively discarding the highest spacial
+frequencies, so to make full use of the input the image
+can be expanded to create more sample points than
+were present in the original. This is done by
+doubling the size of the input image using linear interpolation
+prior to building the first level of the pyramid. This
+doubles the number of stable keypoints found in an image but
+doesn't improve feature detection overall.
+
+### Keypoint localization
+Once a keypoint candidate has been found by comparing
+a pixel to its neighbours, we need to perform a detailed fit
+to nearby data for location, scale and ratio of
+principal curvatures. This allows us to reject points
+with low contrast (sensitive to noise).
+
+Brown approach: Use a 3D quadratic function
+to the local sample points to determine the interpoalted
+location of the maximum using the Taylor expansion
+of the scale-space function:
+
+$D(\bold x) = D + \frac{\partial D^T}{\partial \bold x} + \frac{1}{2}\bold x^T \frac{\partial^2 D}{\partial \bold x^2} \bold x$
+
+Where $D$ and its derivatives are evaluated at the sample point
+and $\bold x = (x, y, \sigma)^T$, which is the offset
+from the point.
+
+The Hessian and derivative of D are approximated by using the
+differences of neighbouring sample points.
+
+The function value at the extremum is useful for rejecting
+unstable extrema with low constrast.
+
+#### Eliminating edge responses.
+
+It is not sufficient to reject keypoints with low
+contrast, because the difference-of-Gaussians function
+will have a strong response along the edges
+even if the location along the edge is poorly determined.
+
+A poorly defined peak in the difference-of-Gaussians will have
+a large principal curvature given by the Hessian
+matrix:
+
+$H = \begin{bmatrix} D_{xx} && D_{xy} \\ D_{yx} && D_{yy} \end{bmatrix}$.
+
+The eigenvalues of $H$ are proportional to the principal
+curvatures of $D$.
+
+Because $\trace (H) = \lambda_1 + \lambda_2$ and $\det (H) = \lambda_1 + \lambda_2$,
+we can determine if the ratio of principale curvatures
+is below some threshold:
+
+$\frac{\trace (H)^2}{\det (H)^2} < \frac{(r + 1)^2}{r}
+
+If the determinant of the Hessian is negative, then the
+curvatures have different signs so the point is discarded
+as not being an extremum.
+
+### Assignment of Orientation
+If we assign a consistent orientation to each keypoint based on
+local image properties, the keypoint descriptor can be
+represented relative to this orierntation and therefore
+achieve invariance to image rotation.
+
+The scale of the keypoint is used to select the Gaussian-smoothed-image
+$L$ with the cloest scale so that all computations are performed in
+a scale-invariant manner. For each image sample $L(x, y)$ at
+this scale, the gradient magnitude $m(x, y)$ and orientation
+$\theta(x, y)$ is precomputed using the pixel difference:
+
+$m(x, y) = \sqrt{(L(x + 1, y) - L(x -2, y)^2) + (L(x, y + 1) - L(x, y - 1)^2}$
+
+$\tan \theta = \frac{(L(x + 1, y) - L(x -2, y))}{(L(x, y + 1) - L(x, y - 1)}$
+
+This forms an orientation histogram from the graident orientations of
+sample points within the region around a keypoint.
+
+### Local image descriptor
+How do we assign a location, scale and orientation to each
+key point?
+
+One appriach is to sample the local imave intensities around
+the key-poiint at the appropriate scale and match them to
+a database of features using a normalized correlation
+meausre, but this is highly sensitive to changes that
+cause mis-registration of samples, such as affine or
+3D viewpoint changes.
+
+A better way to do it is to find gradients at particular
+orientations and special frequencies, matching them to
+gradients at a frequency that are allowed to shift
+over a range of locations within the image plane.
+
+Sample the gradient magnitudes and orientations around
+the keypoint location, using the scale of the keypoint
+to determine the level of Gaussian blur for the image.
+
+Use a Gaussian weighting function with $\sigma$ equal to one
+half of the width of the descriptor window to
+assign a weight and magnitude to each point (eg, each key-point
+gets a circle on top of it where we summarize the contents of
+that circle). Therefore, a gradient sample window can shift
+up to four sample positions whilst still contributing to the
+summary of a key point.
+
+The feature vector for each key point is modified to reduce the
+effects of illumination change:
+ - Normalize it to unit length: Adding a constant brightness term
+   to all the pixels in the region won't affect the normalized
+   vector, therefore it is invariant to affine changes in illunication.
+ - Gradient reduction: Threshold the values in the unit feature vector to
+   be no larger than 0.2. This helps to reduce the impact of large gradients
+   when considering non-linear illumination changes.
+
+### Testing the complexity of a descriptor
+Two parameters can be used to vary the complexity of a descriptor:
+ - Number of orientations, %r$.
+ - The width $n$ of the $n \ times n$ array of orientation histograms.
+
+We generally find a 4x4 array of histograms with 8 orientations
+(resulting in a feature vector with 128 dimensions) works
+best - anything more and you start to overfit, hurting matching.
+
+### Sensitivity to affine changes
+The best approach available in this paper was the Mikolajczyk approach
+which had lower overall repeatability of keypoints across angle changes
+but was able to retain a 40% repeatability rate in a 70 degree angle
+change, unlike other approaches which tapered off more quickly. The
+trade-off was higher computational cost and a reduced number of matched
+keypoints overall.
+
+## How can we use this for object recognition?
+Match each keypoint independently to the database
+of keypoints extracted from the training images.
+
+The best candidate match is found by identifying the nearest
+neighbour in the database of keypoints for training images (eg
+minimal euclidean distance in vector space).
+
+The metric of how many features we matched might not be that
+useful though, since many features can arise from background
+cluter, so we should discard features that do not
+have any good match in the database by imposing a threshold
+on the distance that the feature can be to its nearest neighbour.
+
+### Hough transform
+How can we recognize or highly occluded objects? The distance
+ratio test described above does not remove
+matches from other valid objects.
+
+We can use something called the Hough transform to cluster features
+in pose space - each feature votes for all object poses that are
+consistent with the feature. Each keypoint specifies
+4 parameters - a 2D location, scale and orientation. Each matched
+keypoint has a similar record relative to the training
+image. Clusters with at least three entries are binned together.
+
+### Affine parameters
+If we imagine placing a sphere around the object, then rotation of the
+sphere by 30 degrees will move no point within the sphere
+more than 0.25 times the projected diameter of the sphere.
+
+We wish to solve for the transformation parameters, so
+we can rewrite the affine transformation of a model point
+to an image point:
+
+$\begin{bmatrix} u \\ v \end{bmatrix} = \begin{bmatrix} m_1 && m_2 \\ m_3 && m_4 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} + \begin{bmatrix} t_x \\ t_y \end{bmatrix}$.
+
+We want to solve for the transformation parameters so we
+rewrite it as so:
+
+$\begin{bmatrix} x && y && 0 && 0 && 1 && 0 \\ 0 && 0 && x && y && 0 && 1 \\ ... \\ ... \end{bmatrix} \begin {bmatrix} m_1 \\ m_2 \\ m_3 \\ m_4 \\ t_x \\ t_y\end{bmatrix} = \begin{bmatrix} v \\ v \end{bmatrix}$
+
+We can get the least-squares solution by solving the following equation:
+
+$\bold x = [A^TA]^{-1}A^T \bold b$
+
+This minimies the sum of the squares of the distances from the projected
+model locations to the corresponding image locations. We require each
+match to agree within half the error range that was used for the parameters
+in the Hough transform.
+
+## Problem definition
+We need low-level features (corners, edges, texture patches) for many tasks:
+ - Image matching and registration
+ - Structure-from-motion
+ - Image segmentation
+ - Object recognition
+ - Imamge retrieval
+
+## Edge detection
+Identify sudden changes in an image, since most semantic and shape
+information can be encoded in the edges.
+
+Edges are caused by a variety of factors including:
+ -  surface normal discontinuity
+ -  depth discontinuity
+ -  surface color discontinuity
+ -  illumination discontinuity
+
+We can represent an edge across by taking the cross-section
+of its intensity value across some horizontal line. It
+will be represented by a "U" shape in a graph and the first
+derivative will have extrema on the turning points of the "U".
+
+### Derivatives with convolutions
+
+#### Derivative theorem of convolution
+
+### Partial derivatives of an image
+
+### Finite difference filters
+
+### Image gradients
+
+### Controlling for noise
+
+### Derivative of Gaussian filter
+Remember that the 2D Gaussian can be expressed as
+theproduct of two functions, one for $x$ and one for $y$.
+
+### Smoothing vs Derivative Filters
+Smoothing filters:
+ - Gaussian: Removes "high frequency" components (low-pass filter)
+ - Can the values of a smoothing filter be negative?
+ - The values should sum to 1
+
+Derivative filters:
+ - Derivative of Gaussian
+ - Can the values be negative?
+ - The value should sum to 0.
+
+## Thresholding
+### Non-maximum suppression
+
+### Hysteresis Theresholding
+
+### Canny edge detector
+
+## Keypoint extraction
+### Characteristics of good keypoints
+ - Repeatability
+ - Saliency
+ - Compactness and efficiency
+ - Locality
+
+### Corner detection
+$E(u, v) = \sum_{(x, y) \in W) [I(x + u, y + v) - I(x, y)]^2
+
+Quadratic approximation can be written as:
+
+$E(u, v) = [u v] M \begin{bmatrix} u \\ v \end{bmatrix}$
+
+where $M$ is a second moment matrix computed from
+image derivatives:
+
+$M = \begin{bmatrix} \sum_{x, y} I^2_x && \sum_{x, y} I_x I_y \\ \sum_{x, y} I_x I_y && \sum_{x, y} I^2_y\end{bmatrix}$
+
+Since the quadratic form is the equation of an ellipse, we can determine
+the axis lengths by performing an eigendecomposition - the axis lengths
+are the eigenvalues and the orientation is
+determined by $R$ where $M = R^{-1} [\lambda] R$.
+
+We want $\sum_{x, y} I^2_x$ and $\sum_{x, y} I^2_y$ to both be large, meaning
+that the eigenvalues should both be large. Edges are where one eigenvalue
+is much closer to the other. Where eigenvalues are both small there is not
+much of a change in gradient.
+
+We can also encode this as a kind of "corner response function":
+
+$R = \det M - \alpha \trace (M)^2 = \lambda_1\lambda_2 - \alpha(\lambda_1 + \lambda_2)^2$
+
+This is known as "Harris corner detection":
+ - Compute the partial derivatives at each pixel
+ - Compute the second moment matrix $M$ in a Gaussian window around each pixel.
+
+$M = \begin{bmatrix} \sum_{x, y} w(x, y) I^2_x && \sum_{x, y} w(x, y) I_x I_y \\ \sum_{x, y} w(x, y) I_x I_y && \sum_{x, y} w(x, y) I^2_y\end{bmatrix}$
+
+Then, we compute the corner response function of the second moment matrix and
+apply some thresholding to find the local maximum of the response function.
+
+#### Robustness of corner features
+##### Affine intensity
+
+##### Translation
+
+##### Rotation
+
+##### Scaling
+
+
+
 # Feature Based Alignment & Image Stitching (6, 9)
 # Dense Motion Estimation (8)
 # Structure From Motion (7)
