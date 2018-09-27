@@ -893,7 +893,7 @@ will differ because the former flips and the latter does not.
 
 ### Gaussian filters
 
-$G_{\sigma} = \frac{1}{2\pi\sigma^2}e^{-\frac(x^2 + y^2)}{2\sigma^2}$
+$G_{\sigma} = \frac{1}{2\pi\sigma^2}e^{-\frac{(x^2 + y^2)}{2\sigma^2}}$
 
 The weights decay exponentially but they alwasy stay positive.
 The larger $\sigma$ is, the larger the kernel is, eg the larger
