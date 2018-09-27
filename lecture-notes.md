@@ -918,7 +918,7 @@ into products of two 1D Gaussians (horizontal and vertical passes).
 
 #### Separability of a Guassian filter
 
-$G_{\sigma}(x, y) = (\frac{1}{\sqrt {2 \pi} \sigma} e^{-\frac{x^2}/2\sigma^2} + (\frac{1}{\sqrt {2 \pi} \sigma} e^{-\frac{y^2}/2\sigma^2}$
+$G_{\sigma}(x, y) = \frac{1}{2\pi\sigma^2}e^{-\frac{x^2}{2\sigma^2}} \times \frac{1}{2\pi\sigma^2}e^{-\frac{y^2}{2\sigma^2}}$
 
 This is useful in practice because $k * k$ requires $k^2$ operations per
 pixel, but if we do it separately it only requires $2k$ operations for
