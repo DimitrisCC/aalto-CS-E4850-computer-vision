@@ -924,7 +924,7 @@ This is useful in practice because $k * k$ requires $k^2$ operations per
 pixel, but if we do it separately it only requires $2k$ operations for
 separable kernels.
 
-However, it creates a data depencny between the horizontally
+However, it creates a data dependency between the horizontally
 and vertically blurred images, eg the horizontal filtering must
 be complete before the vertical filtering can continue
 (or vice versa).
