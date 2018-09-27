@@ -1191,11 +1191,442 @@ subsampling it.
 ## Image pyramids
 
 # Feature Detection & Matching (4)
+## Problem definition
+We need low-level features (corners, edges, texture patches) for many tasks:
+ - Image matching and registration
+ - Structure-from-motion
+ - Image segmentation
+ - Object recognition
+ - Imamge retrieval
+
+## Edge detection
+Identify sudden changes in an image, since most semantic and shape
+information can be encoded in the edges.
+
+Edges are caused by a variety of factors including:
+ -  surface normal discontinuity
+ -  depth discontinuity
+ -  surface color discontinuity
+ -  illumination discontinuity
+
+We can represent an edge across by taking the cross-section
+of its intensity value across some horizontal line. It
+will be represented by a "U" shape in a graph and the first
+derivative will have extrema on the turning points of the "U".
+
+### Derivatives with convolutions
+For a 2D function $f(x, y)$ the partial derivative is:
+
+$\frac{\partial f(x, y)}{\partial x} = \lim_{\epsilon \to 0} = \frac{f(x + \epsilon, y) - f(x, y)}{\epsilon}$
+
+Because we have a discrete signal we can approximate by using $\epsilon = 1$,
+eg 1 pixel
+
+$\frac{\partial f(x, y)}{\partial x}} = \lim_{1 \to 0} = f(x + 1, y) - f(x, y)$
+
+How do we do this as a convolution?
+
+This is a pretty simple filter, you just have a $1$, $-1$ filter:
+
+    1 0 -1                 1  1  1
+    1 0 -1 = respect to x, 0  0  0
+    1 0 -1                -1 -1 -1
+
+If we compute the derivative with respect to $x$ and $y$, the derivative
+with respect to $y$ is the horizontal edge detector, the derivative
+with repsect to $x$ is the vertical edges.
+
+#### Derivative theorem of convolution
+Note that if instead of taking first the convoluton then computing
+the derivative using a discrete derivative filter, we can instead
+compute the derivative of the gaussian function the convolve with that,
+eg:
+
+$\frac{\partial}{\partial x} (f * g) = f * (\frac {\partial}{\partial x} g)$
+
+This is because both the Gaussian convolution and the finite
+derivative are computed using a convolution.
+
+### Finite difference filters
+Instead of taking the difference with respect to the neighbour
+we can approximate with different weights:
+
+Sobel:
+
+          -1 0 1      1  2  1
+    My_x  -2 0 2 M_y  0  0  0
+          -1 0 1     -1 -2 -1
+
+
+Roberts:
+
+    M_x 0 1  M_y 1  0
+       -1 0      0 -1
+
+### Image gradients
+The gradient vector of an image is:
+
+$\triangledown f = \begin{bmatrix} \frac{\partial f}{\partial x} && \frac{\partial f}{\partial y} \end{bmatrix}$
+
+The gradient vector tells you the *direction* where the intensity is increasing
+or decreasing.
+
+The direction of the gradient vector is $\tan^{-1} \frac{\frac{\partial f}{\partial x}}{frac{\partial f}{\partial y}}$
+
+The *edge strength* is given by $||\triangledown f||$
+
+### Gradient-domain image editing
+The gradients of the target region and source region should match
+to avoid discontinuity between image regions.
+
+### Controlling for noise
+If we consider a single role or column of the image, there is going to
+be a lot of *noise*, which menas that the derivative will be changing
+quite rapdily.
+
+If we compute the gradient using one-pixel radients the noise will dominate
+the gradient-domain.
+
+We need to smooth the image first to get rid of the high frequency noise,
+but would not smooth large edges out (the true edges remain).
+
+We take a Gaussian kernel with a standard deviation of 50px and convolve
+it with the image the noise will be smoothed out but the edge
+gradient wil remain. If we take the derivative of the convolved
+image we get a much cleaner gradient and we can find a single set
+of peaks there, eg $\frac{\partial}{\partial x}(f * g)$.
+
+Computing the gradient in this manner is always a good idea
+because we can recognize edges that have different scales or
+different sharpness.
+
+### Derivative of Gaussian filter
+Remember that the 2D Gaussian can be expressed as
+the product of two functions, one for $x$ and one for $y$. So
+the $\frac{\partial}{\partial x} G \times \frac{\partial}{\partial y} G = G'$.
+
+The partial derivative of the Gaussian kernel in the $x$
+direction finds vertical edges.
+
+The partial derivative of the Gaussian kernel in the $y$
+direction finds horizontal edges.
+
+### Scale of Gaussian filter
+The standard deviation term $\sigma$ affects the kinds of
+edges that we detect - the more smoothing we apply,
+the more that we detect edges that occurr over several pixels.
+
+With $\sigma = 1$ we only detect sudden changes but not larger edges. Of
+course, the more smoothing we apply the more we start to blur edges.
+
+### Smoothing vs Derivative Filters
+Smoothing filters:
+ - Gaussian: Removes "high frequency" components (low-pass filter)
+ - Can the values of a smoothing filter be negative: The values cannot be negative
+ - The values should sum to 1
+
+Derivative filters:
+ - Derivative of Gaussian filters
+ - Can the values be negative: Yes, they can be negative
+ - The value should sum to 0.
+
+## Thresholding
+How do we get a binary image where the pixels are
+white only on edges? If we just take the norm of the
+gradient and then threshold it we have a trade off:
+
+ - Threshold is too: We have not very sharp edges if the or
+ - Threshold is too high: We lose fine edges if the
+
+Usually it is better to turn edges into curves.
+
+### Non-maximum suppression
+Typically the gradient magnitude is quite large around
+several pixels close to the edge. We can suppress other
+strong gradients by taking the local maxima of the gradient.
+
+Compute the gradient along all the pixels and check if
+the pixel is a local maximum along the gradient direction,
+select a single max across the width of the edge.
+
+Need to interpolate the neighbouring values by interpolating
+from the neighbouring pixels.
+
+This way, we get rid of the "smoothness" but we keep edges
+where there there are weaker gradients.
+
+### Hysteresis Theresholding
+First detect the edge pixels, then accept the edge pixels that
+are local maxima in the the gradient direction if they are connected
+to edge pixels with a higher threshold. We apply the low threshold
+only in the vicintiy of edge pixels with a detected high threshold.
+
+### Canny edge detector
+This is called the "Canny edge detector".
+ 1. Compute $x$ and $y$ gradient of images
+ 2. Find magnittude and orientation of gradient
+ 3. Apply non-maximum suppression in the direction of the gradient
+ 4. Define two thresholds, low and high
+ 5. Use the high threshold to start edge curves and then low
+    threshold to continue them.
+
+MATLAB: `edge(image, 'canny')`.
+
+Better these days is human-driven edge detection that is
+learnt as some high-dimensional function.
+
+## Keypoint extraction
+### Characteristics of good keypoints
+ - Repeatability: The same keypoint can be found in several
+                  images despite geometric and photometric
+                  transformations. It should not be too sensitive
+                  to minor changes that can happen because of different
+                  lighting conditions or viewpoints.
+ - Saliency: Each keypoint is distinctive, it should be possible
+             to distinguish between the two.
+ - Compactness and efficiency: Many fewer keypoints than image pixels.
+                               This saves computation time and storage space.
+ - Locality; A keypoint occupies a relatively small area of the image,
+             making it robust to clutter and occlusion. For instance, you
+             should have to see the whole mountain in order to detect
+             parts of it.
+
+### Corner detection
+The basic idea is that we should be able to easily recognize
+the point by looking through a small window. Shifting the window
+in any direction should give a *large change* in intensity.
+
+For instance, if there is no change in gradient, then the region is *flat*.
+
+If there is a change in one direction we can check if there is a change
+in other directions. If there is no change in other directions then
+we have an edge. Otherwise we have a corner.
+
+#### Mathematical operators
+$E(u, v) = \sum_{(x, y) \in W) [I(x + u, y + v) - I(x,y)]^2$
+
+The $u, v$ indicates the shift. We are taking the squared intensity
+difference between the pixel shifted by $u, v$ and the original
+nonshifted pixels. If we evaluate the sum of the function for different
+shifts within some domain $W$ then we are computing the sum of the
+squared differences over some shift region.
+
+How does this behave for small shifts? Take the first order
+Talor approximation.
+
+$I(x + u, y + v) = I(x, y) + I_x u + I_y v$, eg:
+
+The $I_x$ indicates the partial derivative of I with respect
+to x.
+
+If we use this Taylor approximation in the formula in $E(u, v)$:
+
+$E(u, v) = \sum_{(x, y) \in W} [I_x u + I_y v]^2$, eg we have
+a function that depends on the partial derivatives of the image
+and the shift.
+
+Quadratic approximation can be written as:
+
+$E(u, v) = [u v] M \begin{bmatrix} u \\ v \end{bmatrix}$
+
+where $M$ is a second moment matrix computed from
+image derivatives summed over the window $W$:
+
+$M = \begin{bmatrix} \sum_{x, y} I^2_x && \sum_{x, y} I_x I_y \\ \sum_{x, y} I_x I_y && \sum_{x, y} I^2_y\end{bmatrix}$
+
+Since the quadratic form is the equation of an ellipse, we can determine
+the axis lengths by performing an eigendecomposition - the axis lengths
+are the eigenvalues and the orientation is
+determined by $R$ where $M = R^{-1} [\lambda] R$.
+
+The largest eigenvalue indicates the magnitude of the fastest change,
+the smallest eigenvalue indicatest the magnitude of the smallest change.
+
+In the axis-aligned case, We want $\sum_{x, y} I^2_x$ and $\sum_{x, y} I^2_y$
+to both be large, meaning that the eigenvalues should both be large.
+Edges are where one eigenvalue is much closer to the other.
+Where eigenvalues are both small there is not much of a change in gradient. In
+the non-axis aligned case perform an eigendecomposition then look at the
+magnitude of the eigenvalues.
+
+So corners are given by large "circular" ellipses (both eigenvalues
+are within a close range), but long or tall ellipses only indicatee
+edges.
+
+#### Harris Corner Detection
+Instead of computing the eigenvalues directly, we can also encode this as a
+kind of "corner response function":
+
+$R = \det M - \alpha \text{trace} (M)^2 = \lambda_1\lambda_2 - \alpha(\lambda_1 + \lambda_2)^2$
+
+Where $R > \alpha$ we have a corner ($\alpha$ is a threshold).
+Where $|R|$ is small, then the region is
+flag. Edges are given by $R < 0$.
+
+$M = \begin{bmatrix} \sum_{x, y} w(x, y) I^2_x && \sum_{x, y} w(x, y) I_x I_y \\ \sum_{x, y} w(x, y) I_x I_y && \sum_{x, y} w(x, y) I^2_y\end{bmatrix}$
+
+Then, we compute the corner response function of the second moment matrix and
+apply some thresholding to find the local maximum of the response function.
+
+Antother method instead of using a sharp box is to use a Gaussian window, where
+the terms are weighted according to the Gaussian function.
+
+To detect the actual corners just take the local maxima of $R$.
+
+Summary
+ - Compute partial derivatives at each pixel
+ - Compute second moment matrix $M$ in a Gaussian window around each pixel
+ - Compute corner response function $R$
+ - Threshold $R$
+ - Find local maxima of response function
+
+#### Robustness of corner features
+##### Affine intensity
+Since the derivatives are used, it is invariant to an intensity shift,
+eg $I = I + b$.
+
+However, it is not invariant to intensity *scaling* $I = \alpha I$b
+because it will cause certain things to fail the thresholding step.
+
+Therefore it is *partially invariant* to affine intensity changes.
+
+##### Translation
+Derivatives and window funcitons are shift-invariant.
+
+The corner locations are *covariant* to translation, they shift
+in the same manner.
+
+##### Rotation
+Corner locations are *covariant* with rotation. The ellipse indicating
+the direction of the corners will rotate but the eigenvalues remain
+the same.
+
+##### Scaling
+If we scale the image we might start detecting *multiple* corners, so
+all points will be classified as edges! Therefore if we try to match
+images of different scales we would fail.
+
 See the following [paper](https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf) by David Lowe.
 
 ## Scale-Invariant Feature Transforms
-The general gist of detecting such
-image features is to:
+SIFT is "scale invariant", fixing the last issue with using Harriss
+corner detection
+
+THe key-idea is the kind of scale-selection. If we have two pictures
+of the same scene we can detect a characteristic scale for each local
+image region, so that scale is detected covariantly with the image.
+
+### Basic idea
+Convolve the image with a blob filter at multiple scale and look for
+extrema of the filter response in the resulting scale space. A blob
+filter is not a Gaussian filter, it has positive and negative values,
+eg:
+
+    1  0  1
+    0 -1  0
+    1  0  1
+
+Maxima will be the bright regions and minima will be the dark regions.
+
+We have different scales for each filter (eg, a 3x3 filter, a 5x5 filter, etc),
+so we have minima and maxima for each scale.
+
+Mathematically it is a Laplacian of Gaussian functions, eg:
+
+$\triangledown^2 g = \frac{\partial^2 g}{\partial x^2} + \frac{\partial^2 g}{\partial y^2}$
+
+Eg, second order partial derivatives of the Gaussian summed together.
+
+The second order partial derivative is negative towards the middle
+and positive towards the edges. If we filter the image with that
+we have positive and negative values on both sides of the zero.
+
+### From Edges to Blobs
+A single edge gives a non-differentiable threshold.  When we convolve it
+with the Laplacian we get a strong negative response if the edge has
+a scale that is compatible with the scale of the filter.
+
+### How do we take into account the scale?
+We wan tto find the characteristic scale of the blob by
+convolving it with Laplacians at several scales and looking
+for the maximum response. However, the Laplacian response
+decays as scale increases.
+
+The idea is that we need to compensate for the scale, so
+in order to keep the response the same for a step edge, we
+must multiply the filter with $\sigma^2$ because the Laplacian
+is the second Gaussian derivative.
+
+Then we just take the local maxima or minima across all
+the scale-normalized laplacian responses.
+
+So the actual operator is:
+
+$\triangledown^2_{norm} g = \sigma^0 (\frac{\partial^2 g}{\partial x^2} + \frac{\partial^2 g}{\partial y^2})$
+
+### Detecting blobs in 2D
+At what scale does the Laplacian achieve a maximum response
+to a binary circle of radius $r$. When the radius of the circular
+blob in the image matches the *shape* of the Laplacian, so
+the maximum response must occurr at $\sigma \sqrt 2 = r$.
+
+So when we apply the filter for different values of
+$\sigma$ we convert the $\sigma$ into pixel units corresponding
+to the size of the detected blob.
+
+The stack of filtered images can be considered the "scale space"
+
+### Summary of scale-space blob detectors
+1. Convolve the image with scale-nomalized Laplacian at several scales
+2. Find the *maxima* of squared Lapalcian response
+   (detects maxima and minima) in scale space
+3. Each detected local maxima corresponds to a circle in the image, the scale
+   indicating the size of the circle.
+4. Since this gives quite strong responses around edges, so we can postprocess
+   by filtering on the Harris response function over the neighbourhoods
+   containing the blobs. If both of the eigenvalues for the Harris response
+   function are not strong then we filter them out.
+
+### Efficient implementaton
+We can approximate the Laplacian with a difference of Gaussians. We have two
+Gaussian kernels with differing sigmas. If we take the difference of the
+two filter kernels we get an approximation for the Laplacian.
+
+How do we select the value for $k$?
+
+### Describing the features
+The scaled and rotated versions of the same neighbourhood will give
+rise to blobs that are related by the same transformation.
+
+How do we compare the appearnace of these image regions?
+ - Normalize: transform these regions into same-size circles
+ - Problem: Dealing with rotational ambiguity.
+
+#### Eliminating rotational ambiguity
+To assign a unique orientation to circular image windows,
+create a histogram of local image graident directions in
+the patch, and assign a canonical orientation at peak of
+the smoothed histogram.
+
+We detect the peak that corresponds to a certain angle of
+the gradient and we assign it as the "characteristic directon"
+of the region. Then we can rotate the detected bounding boxes.
+
+The *detection* is *covariant* to image transformations:
+
+`features(transform(image)) = transform(features(images))`
+
+The *description* is *invariant*:
+
+`features(transform(image)) = features(image)`
+
+Once we have the geometrically normalized patches we compute
+the gradients inside the patches - put these into a 128
+dimensional vector so that this kind of descritor vector
+for every local image region, and by comparing these
+descriptor vectors we can match parts of images.
+
+The general gist of detecting such image features is to:
  - **Scale-space extrema detection**: Search over all the scales and image locations, using a difference-of-Gaussian function to identify potential interest points that are invariant to scale and orientation.
  - **Keypoint localization**: Determine location and scale of keypoint.
  - **Orientation assignment**: One or more orientations are assigned to each ekypoint location based on local image gradient directions.
@@ -1459,115 +1890,6 @@ This minimies the sum of the squares of the distances from the projected
 model locations to the corresponding image locations. We require each
 match to agree within half the error range that was used for the parameters
 in the Hough transform.
-
-## Problem definition
-We need low-level features (corners, edges, texture patches) for many tasks:
- - Image matching and registration
- - Structure-from-motion
- - Image segmentation
- - Object recognition
- - Imamge retrieval
-
-## Edge detection
-Identify sudden changes in an image, since most semantic and shape
-information can be encoded in the edges.
-
-Edges are caused by a variety of factors including:
- -  surface normal discontinuity
- -  depth discontinuity
- -  surface color discontinuity
- -  illumination discontinuity
-
-We can represent an edge across by taking the cross-section
-of its intensity value across some horizontal line. It
-will be represented by a "U" shape in a graph and the first
-derivative will have extrema on the turning points of the "U".
-
-### Derivatives with convolutions
-
-#### Derivative theorem of convolution
-
-### Partial derivatives of an image
-
-### Finite difference filters
-
-### Image gradients
-
-### Controlling for noise
-
-### Derivative of Gaussian filter
-Remember that the 2D Gaussian can be expressed as
-theproduct of two functions, one for $x$ and one for $y$.
-
-### Smoothing vs Derivative Filters
-Smoothing filters:
- - Gaussian: Removes "high frequency" components (low-pass filter)
- - Can the values of a smoothing filter be negative?
- - The values should sum to 1
-
-Derivative filters:
- - Derivative of Gaussian
- - Can the values be negative?
- - The value should sum to 0.
-
-## Thresholding
-### Non-maximum suppression
-
-### Hysteresis Theresholding
-
-### Canny edge detector
-
-## Keypoint extraction
-### Characteristics of good keypoints
- - Repeatability
- - Saliency
- - Compactness and efficiency
- - Locality
-
-### Corner detection
-$E(u, v) = \sum_{(x, y) \in W) [I(x + u, y + v) - I(x, y)]^2
-
-Quadratic approximation can be written as:
-
-$E(u, v) = [u v] M \begin{bmatrix} u \\ v \end{bmatrix}$
-
-where $M$ is a second moment matrix computed from
-image derivatives:
-
-$M = \begin{bmatrix} \sum_{x, y} I^2_x && \sum_{x, y} I_x I_y \\ \sum_{x, y} I_x I_y && \sum_{x, y} I^2_y\end{bmatrix}$
-
-Since the quadratic form is the equation of an ellipse, we can determine
-the axis lengths by performing an eigendecomposition - the axis lengths
-are the eigenvalues and the orientation is
-determined by $R$ where $M = R^{-1} [\lambda] R$.
-
-We want $\sum_{x, y} I^2_x$ and $\sum_{x, y} I^2_y$ to both be large, meaning
-that the eigenvalues should both be large. Edges are where one eigenvalue
-is much closer to the other. Where eigenvalues are both small there is not
-much of a change in gradient.
-
-We can also encode this as a kind of "corner response function":
-
-$R = \det M - \alpha \trace (M)^2 = \lambda_1\lambda_2 - \alpha(\lambda_1 + \lambda_2)^2$
-
-This is known as "Harris corner detection":
- - Compute the partial derivatives at each pixel
- - Compute the second moment matrix $M$ in a Gaussian window around each pixel.
-
-$M = \begin{bmatrix} \sum_{x, y} w(x, y) I^2_x && \sum_{x, y} w(x, y) I_x I_y \\ \sum_{x, y} w(x, y) I_x I_y && \sum_{x, y} w(x, y) I^2_y\end{bmatrix}$
-
-Then, we compute the corner response function of the second moment matrix and
-apply some thresholding to find the local maximum of the response function.
-
-#### Robustness of corner features
-##### Affine intensity
-
-##### Translation
-
-##### Rotation
-
-##### Scaling
-
 
 
 # Feature Based Alignment & Image Stitching (6, 9)
