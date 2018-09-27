@@ -1757,11 +1757,11 @@ $H = \begin{bmatrix} D_{xx} && D_{xy} \\ D_{yx} && D_{yy} \end{bmatrix}$.
 The eigenvalues of $H$ are proportional to the principal
 curvatures of $D$.
 
-Because $\trace (H) = \lambda_1 + \lambda_2$ and $\det (H) = \lambda_1 + \lambda_2$,
+Because $\text{trace} (H) = \lambda_1 + \lambda_2$ and $\det (H) = \lambda_1 + \lambda_2$,
 we can determine if the ratio of principale curvatures
 is below some threshold:
 
-$\frac{\trace (H)^2}{\det (H)^2} < \frac{(r + 1)^2}{r}
+$\frac{\text{trace} (H)^2}{\det (H)^2} < \frac{(r + 1)^2}{r}$
 
 If the determinant of the Hessian is negative, then the
 curvatures have different signs so the point is discarded
