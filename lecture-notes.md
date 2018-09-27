@@ -851,7 +851,7 @@ What about the following filters:
     0 0 0
 
     1 0 -1
-    2 0 -2 -> Detects right vertical edges. If there is 
+    2 0 -2 -> Detects right vertical edges. If there is
     1 0 -1    a large difference between a pixel and its
               right neighbour, this difference is highlighted
 
